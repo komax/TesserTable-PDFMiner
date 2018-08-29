@@ -44,7 +44,7 @@ def tess(infile, outfile):
     soup = BeautifulSoup(text, "html.parser")
     pages = soup.find_all('div', 'ocr_page')
     careas = soup.find_all('div', 'ocr_carea')
-    #pars = soup.find_all('p', 'ocr_par')
+    pars = soup.find_all('p', 'ocr_par')
     words = soup.find_all('span', 'ocrx_word')
 
     page_boxes = [make_box(get_bbox(page.get('title'))) for page in pages]
@@ -61,10 +61,10 @@ def tess(infile, outfile):
             box['_right'] - box['_left'],
             box['_bottom'] - box['_top'],
             fill=False,
-            linewidth=0.2,
-            edgecolor="#1d1f21"
-        )
-        )
+            linewidth=1,
+            edgecolor="#2b8cbe"
+            )
+            )
 
     for box in carea_boxes:
         ax.add_patch(patches.Rectangle(
@@ -72,8 +72,8 @@ def tess(infile, outfile):
             box['_right'] - box['_left'],
             box['_bottom'] - box['_top'],
             fill=False,
-            linewidth=0.5,
-            edgecolor="#282a2e"
+            linewidth=0.75,
+            edgecolor="#7bccc4"
             )
             )
 
@@ -83,18 +83,18 @@ def tess(infile, outfile):
             box['_right'] - box['_left'],
             box['_bottom'] - box['_top'],
             fill=False,
-            linewidth=0.1,
-            edgecolor="#373b41"
+            linewidth=0.5,
+            edgecolor="#bae4bc"
             )
             )
 
-    plt.ylim(0,page_boxes[0]['_bottom'])
-    plt.xlim(0,page_boxes[0]['_right'])
+    plt.ylim(0, page_boxes[0]['_bottom'])
+    plt.xlim(0, page_boxes[0]['_right'])
     plt.axis("off")
     ax = plt.gca()
     ax.invert_yaxis()
     plt.axis('off')
-    fig.savefig(outfile, dpi=400, bbox_inches='tight', pad_inches=0)
+    # fig.savefig(outfile, dpi=400, bbox_inches='tight', pad_inches=0)
 
 
 def make_rectangle(area):
