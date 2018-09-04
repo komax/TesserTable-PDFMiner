@@ -13,9 +13,9 @@ mkdir -p $1/ocr_annotations
 mkdir -p $1/table-detection
 mkdir -p $1/tables
 
-gs -dBATCH -dNOPAUSE -sDEVICE=png16m -dGraphicsAlphaBits=4 -dTextAlphaBits=4 -r600 -sOutputFile="$1/png/page_%d.png" $2
+gs -dBATCH -dNOPAUSE -sDEVICE=png16m -dGraphicsAlphaBits=4 -dTextAlphaBits=4 -r600 -sOutputFile="$1/png/page_%d.png" "$2"
 
-cp $2 $1/orig.pdf
+cp "$2" "$1/orig.pdf"
 pdftotext $1/orig.pdf - -enc UTF-8 > $1/text.txt
 
 ls $1/png | grep -o '[0-9]\+' | parallel -j 4 "./process.sh $1 {}"
