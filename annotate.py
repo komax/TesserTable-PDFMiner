@@ -164,8 +164,8 @@ def plot_table_scores(plot, areas):
                   fontsize=8,
                   alpha=0.6)
 
-
-if len(sys.argv) == 3:
-    tess(sys.argv[1], sys.argv[2])
-else:
-    print 'Script requires two parameters: an input Tesseract HOCR file and an output file name and location'
+if __name__ == '__main__':
+    if len(sys.argv) == 3:
+        tess(sys.argv[1], sys.argv[2])
+    else:
+        print 'Script requires two parameters: an input Tesseract HOCR file and an output file name and location'
