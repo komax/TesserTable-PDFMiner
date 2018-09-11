@@ -32,9 +32,12 @@ def process_publication(pdf_path, out_dir):
     func_call = ['./preprocess.sh', out_dir, pdf_path]
     call(func_call)
     print "Completed call: {}".format(" ".join(func_call))
-    # print "Starting to extract tables {} ...".format(pdf_path)
-    # extract_tables(out_dir)
-    # print "Completed table extraction {} ...".format(pdf_path)
+    print "Starting to extract tables {} ...".format(pdf_path)
+    try:
+        extract_tables(out_dir)
+        print "Completed table extraction {} ...".format(pdf_path)
+    except:
+        print "Could not extract tables from {}".format(pdf_path)
 
 
 def create_output_directory(pdf_path):
@@ -62,15 +65,18 @@ def main():
 
     pdfs = select_pdfs(args.inputdir)
 
-    p = Pool(4)
-    p.map(handle_paper, pdfs)
+    for pdf_path in pdfs:
+        handle_paper(pdf_path)
 
-    # for pdf_path in pdfs:
-    #     file_name = file_name_without_ext(pdf_path)
-    #     out_directory = Path(out_dir) / file_name
-    #     out_directory.mkdir(parents=True, exist_ok=True)
+    # p = Pool(4)
+    # p.map(handle_paper, pdfs)
     #
-    #     process_publication(str(pdf_path), str(out_directory))
+    # for i, p in enumerate(pdfs):
+    #     if str(p.stem).startswith("Andresen"):
+    #         print i
+    #
+    # print pdfs[3]
+    # handle_paper(pdfs[3])
 
     #call(['./preprocess.sh', 'output/henry_et_al._2007', '/Users/mk21womu/Dropbox/Habitat loss meta-analysis/good_datasets/references/henry et al. 2007.pdf'])
     #extract_tables('output/henry_et_al._2007')
