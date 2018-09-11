@@ -94,7 +94,8 @@ def tess(infile, outfile):
     ax = plt.gca()
     ax.invert_yaxis()
     plt.axis('off')
-    # fig.savefig(outfile, dpi=400, bbox_inches='tight', pad_inches=0)
+    fig.savefig(outfile, dpi=400, bbox_inches='tight', pad_inches=0)
+    plt.close(fig)
 
 
 def make_rectangle(area):
@@ -150,6 +151,7 @@ def plot_table_detection_per_page(page, path, overlay=True, out_dir='table-detec
     plt.axis('off')
     outfile = path + "/" + out_dir + "/page_" + page['page_no'] + ".png"
     fig.savefig(outfile, dpi=600, bbox_inches='tight', pad_inches=0)
+    plt.close(fig)
 
 
 def plot_table_scores(plot, areas):
