@@ -20,10 +20,16 @@ pdftotext $1/orig.pdf - -enc UTF-8 > $1/text.txt
 
 ls $1/png | grep -o '[0-9]\+' | parallel -j 4 "./process.sh $1 {}"
 
-tesseract_path="$1/tesseract-txt"
+
+if [ -f $1/plain_text.txt ]
+then
+    rm $1/plain_text.txt
+fi
 touch $1/plain_text.txt
 
-for i in `seq 1 50`;
+tesseract_path="$1/tesseract-txt"
+
+for i in `seq 1 300`;
 do
     if [ -f $tesseract_path/page_$i.txt ]
     then
