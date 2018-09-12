@@ -350,7 +350,7 @@ def get_header_footer(pages, page_height, page_width):
     #   + The middle of the vertical extent between the words in the top row must be on the top 1/4 of the page
     #   + The vertical extent of the words in the potential header must not overlap in y-space with any text block
     if (min_min_y1 + ((max_min_y2 - min_min_y1)/2)) < page_height/4 and not (text_block_area['y1'] <= max_min_y2 and min_min_y1 <= text_block_area['y2']):
-        print 'HAS HEADER - ', min_min_y1, max_min_y2
+        print('HAS HEADER - ', min_min_y1, max_min_y2)
         header = {
             'x1': 0,
             'y1': 0,
@@ -360,7 +360,7 @@ def get_header_footer(pages, page_height, page_width):
 
     # To determine if a footer is present, the same rules apply except it must be in the bottom 1/4 of the page
     if (min_max_y1 + ((max_max_y2 - min_max_y1)/2)) > (page_height - page_height/4) and not     (text_block_area['y1'] <= max_max_y2 and min_max_y1 <= text_block_area['y2']):
-        print 'HAS FOOTER - ', min_max_y1, max_max_y2
+        print('HAS FOOTER - ', min_max_y1, max_max_y2)
         footer = {
             'x1': 0,
             'y1': min_max_y1,
@@ -474,7 +474,7 @@ def area_summary(area):
         summary['line_heights'].append(height)
 
     # Number of words
-    summary['words'] = len(filter(None, area.getText().strip().replace('\n', ' ').replace('  ', ' ').split(' ')))
+    summary['words'] = len([_f for _f in area.getText().strip().replace('\n', ' ').replace('  ', ' ').split(' ') if _f])
 
     # Area
     summary['area'] = (summary['x2'] - summary['x1']) * (summary['y2'] - summary['y1'])
