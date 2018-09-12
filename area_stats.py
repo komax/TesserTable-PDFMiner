@@ -30,7 +30,7 @@ def areaSummary(area):
     summary['lines'] = len(area.find_all('span', 'ocr_line'))
 
     # Number of words
-    summary['words'] = len(filter(None, area.getText().strip().replace('\n', ' ').replace('  ', ' ').split(' ')))
+    summary['words'] = len([_f for _f in area.getText().strip().replace('\n', ' ').replace('  ', ' ').split(' ') if _f])
 
     # Area
     summary['area'] = (summary['x2'] - summary['x1']) * (summary['y2'] - summary['y1'])
@@ -129,11 +129,11 @@ def tess():
         caption_matches = re.match('(table|figure|fig|map)(\.)? \d+(\.)', clean_line, flags=re.IGNORECASE)
         # dedicated line (ex: Table 1)
         if dedicated_line_matches and dedicated_line_matches.group(0) == clean_line:
-            print dedicated_line_matches.group(0)
+            print(dedicated_line_matches.group(0))
             indicator_lines.append(helpers.extractbbox(line.get('title')))
         # Other
         elif caption_matches:
-            print caption_matches.group(0)
+            print(caption_matches.group(0))
             bbox = helpers.extractbbox(line.get('title'))
             bbox['name'] = caption_matches.group(0)
             indicator_lines.append(helpers.extractbbox(line.get('title')))
@@ -142,23 +142,23 @@ def tess():
     area_stats = [ areaSummary(area) for area in areas ]
     doc_stats = summarizeDocument(area_stats)
 
-    print 'Document Summary:'
-    print '    Word separation avg (mean): %s' % ('%.2f' % doc_stats['word_separation_mean'], )
-    print '    Word separation avg (median): %s' % ('%.2f' % doc_stats['word_separation_median'], )
-    print '    Word separation avg (std): %s' % ('%.2f' % doc_stats['word_separation_std'], )
+    print('Document Summary:')
+    print('    Word separation avg (mean): %s' % ('%.2f' % doc_stats['word_separation_mean'], ))
+    print('    Word separation avg (median): %s' % ('%.2f' % doc_stats['word_separation_median'], ))
+    print('    Word separation avg (std): %s' % ('%.2f' % doc_stats['word_separation_std'], ))
 
-    print '    Word separation index (mean): %s' % ('%.2f' % doc_stats['word_separation_index_mean'], )
-    print '    Word separtion index (median): %s' % ('%.2f' % doc_stats['word_separation_index_median'], )
-    print '    Word separtion index (std): %s' % ('%.2f' % doc_stats['word_separation_index_std'], )
-    print '    Word height index (mean): %s' % ('%.2f' % doc_stats['word_height_index_mean'], )
-    print '    Word height index (median): %s' % ('%.2f' % doc_stats['word_height_index_median'], )
-    print '    Word height index (std): %s' % ('%.2f' % doc_stats['word_height_index_std'], )
-    print '    Word area index (mean): %s%%' % (int(doc_stats['word_area_index_mean'] * 100), )
-    print '    Word area index (median): %s%%' % (int(doc_stats['word_area_index_median'] * 100), )
-    print '    Word area index (std): %s%%' % (int(doc_stats['word_area_index_std'] * 100), )
-    print '    Word height avg (mean): %s' % ('%.2f' % doc_stats['word_height_avg'], )
-    print '    Word height avg (median): %s' % ('%.2f' % doc_stats['word_height_avg_median'], )
-    print '    Word height avg (std): %s' % ('%.2f' % doc_stats['word_height_avg_std'], )
+    print('    Word separation index (mean): %s' % ('%.2f' % doc_stats['word_separation_index_mean'], ))
+    print('    Word separtion index (median): %s' % ('%.2f' % doc_stats['word_separation_index_median'], ))
+    print('    Word separtion index (std): %s' % ('%.2f' % doc_stats['word_separation_index_std'], ))
+    print('    Word height index (mean): %s' % ('%.2f' % doc_stats['word_height_index_mean'], ))
+    print('    Word height index (median): %s' % ('%.2f' % doc_stats['word_height_index_median'], ))
+    print('    Word height index (std): %s' % ('%.2f' % doc_stats['word_height_index_std'], ))
+    print('    Word area index (mean): %s%%' % (int(doc_stats['word_area_index_mean'] * 100), ))
+    print('    Word area index (median): %s%%' % (int(doc_stats['word_area_index_median'] * 100), ))
+    print('    Word area index (std): %s%%' % (int(doc_stats['word_area_index_std'] * 100), ))
+    print('    Word height avg (mean): %s' % ('%.2f' % doc_stats['word_height_avg'], ))
+    print('    Word height avg (median): %s' % ('%.2f' % doc_stats['word_height_avg_median'], ))
+    print('    Word height avg (std): %s' % ('%.2f' % doc_stats['word_height_avg_std'], ))
 
     '''
     table definition:
@@ -231,7 +231,7 @@ def tess():
                 caption_areas[nearest_caption] = [area_idx]
 
     # Sanity check the caption-area assignments
-    for caption, areas in caption_areas.iteritems():
+    for caption, areas in caption_areas.items():
         # Only check if the caption is assigned to more than one area
         if len(areas) > 1:
             # draw a line through the middle of the caption that spans the page
@@ -296,7 +296,7 @@ def tess():
 
 
     extracts = []
-    for caption, areas in caption_areas.iteritems():
+    for caption, areas in caption_areas.items():
         areas_of_interest = [area_stats[area] for area in areas]
         areas_of_interest.append(indicator_lines[caption])
 
@@ -332,7 +332,7 @@ def tess():
                         extract_relations[extract_idx]['below'].append(area_idx)
 
 
-    for extract_idx, props in extract_relations.iteritems():
+    for extract_idx, props in extract_relations.items():
         for area_idx in extract_relations[extract_idx]['above']:
             if area_stats[area_idx]['type'] != 'text block' and area_stats[area_idx]['type'] != 'not a table' and area_stats[area_idx]['type'] != 'other' :
                 # [Grow] the extract area
@@ -343,7 +343,7 @@ def tess():
         for area_idx in extract_relations[extract_idx]['below']:
             if area_stats[area_idx]['type'] != 'text block' and area_stats[area_idx]['type'] != 'not a table' and area_stats[area_idx]['type'] != 'other' :
                 # [Grow] the extract area
-                print extract_idx, area_stats[area_idx]['type']
+                print(extract_idx, area_stats[area_idx]['type'])
                 extracts[extract_idx].update(helpers.enlarge_extract(extracts[extract_idx], area_stats[area_idx]))
             else:
                 break

@@ -3,7 +3,7 @@
 import argparse
 import sys
 
-from pathlib2 import Path
+from pathlib import Path
 from subprocess import call
 from multiprocessing import Pool
 
@@ -28,16 +28,16 @@ def file_name_without_ext(path):
 
 
 def process_publication(pdf_path, out_dir):
-    print "Starting to preprocess {} ...".format(pdf_path)
+    print("Starting to preprocess {} ...".format(pdf_path))
     func_call = ['./preprocess.sh', out_dir, pdf_path]
     call(func_call)
-    print "Completed call: {}".format(" ".join(func_call))
-    print "Starting to extract tables {} ...".format(pdf_path)
+    print("Completed call: {}".format(" ".join(func_call)))
+    print("Starting to extract tables {} ...".format(pdf_path))
     try:
         extract_tables(out_dir)
-        print "Completed table extraction {} ...".format(pdf_path)
+        print("Completed table extraction {} ...".format(pdf_path))
     except:
-        print "Could not extract tables from {}".format(pdf_path)
+        print("Could not extract tables from {}".format(pdf_path))
 
 
 def create_output_directory(pdf_path):

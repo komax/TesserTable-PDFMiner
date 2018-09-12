@@ -1,7 +1,6 @@
 import sys
 import os
 from bs4 import BeautifulSoup
-from plot import plot
 import math
 import re
 import numpy as np
@@ -10,6 +9,7 @@ import helpers
 import glob
 
 from annotate import plot_table_detection
+from functools import reduce
 
 np.set_printoptions(threshold=np.inf)
 # Grab this much extra space around tables
@@ -202,7 +202,7 @@ def area_summary(area):
         summary['line_heights'].append(height)
 
     # Number of words
-    summary['words'] = len(filter(None, area.getText().strip().replace('\n', ' ').replace('  ', ' ').split(' ')))
+    summary['words'] = len([_f for _f in area.getText().strip().replace('\n', ' ').replace('  ', ' ').split(' ') if _f])
 
     # Area
     summary['area'] = (summary['x2'] - summary['x1']) * (summary['y2'] - summary['y1'])
@@ -306,11 +306,11 @@ def process_page(doc_stats, page):
 
     def expand_extraction(extract_idx, props):
         # Iterate on above and below areas for each extract
-        for direction, areas in extract_relations[extract_idx].iteritems():
+        for direction, areas in extract_relations[extract_idx].items():
             stopped = False
             for area_idx in extract_relations[extract_idx][direction]:
                 # Iterate on all other extracts, making sure that extending the current one won't run into any of the others
-                for extract_idx2, props2 in extract_relations.iteritems():
+                for extract_idx2, props2 in extract_relations.items():
                     if extract_idx != extract_idx2:
                         will_intersect = helpers.rectangles_intersect(extracts[extract_idx2], helpers.enlarge_extract(extracts[extract_idx], page['areas'][area_idx]))
                         if will_intersect:
@@ -406,18 +406,18 @@ def process_page(doc_stats, page):
         # dedicated line (ex: Table 1)
         if dedicated_line_matches and dedicated_line_matches.group(0) == clean_line:
             bbox['name'] = dedicated_line_matches.group(0)
-            print '  ', bbox['name'].replace('.', '')
+            print('  ', bbox['name'].replace('.', ''))
             indicator_lines.append(bbox)
 
         # Other
         elif caption_matches:
             bbox['name'] = caption_matches.group(0)
-            print '  ',  bbox['name'].replace('.', '')
+            print('  ',  bbox['name'].replace('.', ''))
             indicator_lines.append(bbox)
 
         elif bad_tesseract_matches:
             bbox['name'] = bad_tesseract_matches.group(0)
-            print '  ', bbox['name'].replace('.', '')
+            print('  ', bbox['name'].replace('.', ''))
             indicator_lines.append(bbox)
 
     # Assign a caption to each table, and keep track of which captions are assigned to tables. caption_idx: [area_idx, area_idx, ...]
@@ -499,7 +499,7 @@ def process_page(doc_stats, page):
 
 
     # Sanity check the caption-area assignments
-    for caption, areas in caption_areas.iteritems():
+    for caption, areas in caption_areas.items():
         # Only check if the caption is assigned to more than one area
         if len(areas) > 1:
             # draw a line through the middle of the caption that spans the page
@@ -563,8 +563,8 @@ def process_page(doc_stats, page):
 
     # Extracts are bounding boxes that will be used to actually extract the tables
     extracts = []
-    for caption, areas in caption_areas.iteritems():
-        print indicator_lines[caption]
+    for caption, areas in caption_areas.items():
+        print(indicator_lines[caption])
         area_of_interest_centroid_y_mean = np.mean([ helpers.centroid(page['areas'][area])['y'] for area in areas ])
         indicator_line_centroid_y = helpers.centroid(indicator_lines[caption])['y']
 
@@ -590,7 +590,7 @@ def process_page(doc_stats, page):
     # Make sure each table was assigned a caption
     assigned_tables = []
     unassigned_tables = []
-    for caption_idx, areas in caption_areas.iteritems():
+    for caption_idx, areas in caption_areas.items():
         assigned_tables = assigned_tables + areas
 
     all_tables = []
@@ -599,11 +599,11 @@ def process_page(doc_stats, page):
             all_tables.append(area_idx)
 
     if sorted(assigned_tables) == sorted(all_tables):
-        print 'all tables have a caption on page', page['page_no']
+        print('all tables have a caption on page', page['page_no'])
     else:
         unassigned_tables = set(all_tables).difference(assigned_tables)
-        print 'Not all tables have a caption on page', page['page_no']
-        print 'Not assigned - ', unassigned_tables
+        print('Not all tables have a caption on page', page['page_no'])
+        print('Not assigned - ', unassigned_tables)
 
     orphan_extracts = []
     for table in unassigned_tables:
@@ -658,7 +658,7 @@ def extract_tables(document_path):
             text_layer = t.read()
             has_text_layer = True
     else:
-        print 'Does not have text layer'
+        print('Does not have text layer')
 
     pages = []
     for page_no, page in enumerate(page_paths):
@@ -770,9 +770,9 @@ def extract_tables(document_path):
         # helpers.plot_new_areas(page['page_no'], new_areas)
 
     doc_stats['found_tables'] = figure_idx
-    print 'these tables were found --'
+    print('these tables were found --')
     for ttype in figure_idx:
-        print '    ', ttype, figure_idx[ttype]
+        print('    ', ttype, figure_idx[ttype])
 
     for page in pages:
         page_extracts = process_page(doc_stats, page)

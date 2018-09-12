@@ -13,7 +13,7 @@ parser.add_argument(nargs="?", dest="doc_path",
 arguments = parser.parse_args()
 
 if len(arguments.doc_path) == 0:
-    print "Please enter a valid document path"
+    print("Please enter a valid document path")
     sys.exit(1)
 
 extract_tables(arguments.doc_path)

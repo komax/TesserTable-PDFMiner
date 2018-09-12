@@ -170,4 +170,4 @@ if __name__ == '__main__':
     if len(sys.argv) == 3:
         tess(sys.argv[1], sys.argv[2])
     else:
-        print 'Script requires two parameters: an input Tesseract HOCR file and an output file name and location'
+        print('Script requires two parameters: an input Tesseract HOCR file and an output file name and location')
