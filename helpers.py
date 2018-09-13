@@ -12,8 +12,10 @@ import matplotlib.patches as patches
 
 from difflib import SequenceMatcher
 
+
 def similar(a, b):
     return SequenceMatcher(None, a, b).ratio()
+
 
 def similar_to_keyword(d):
     keywords = ['figure', 'fig', 'table', 'appendix', 'map']
@@ -22,6 +24,7 @@ def similar_to_keyword(d):
             return True
 
     return False
+
 
 def clean_range(candidates):
     good_vals = []
@@ -123,16 +126,20 @@ def min_distance(a, b):
     # Calculate 3 different distances and return the best one
     return min([ distance(a, b), top_left_distance(a, b), bottom_right_distance(a, b) ])
 
+
 def top_left_distance(a, b):
     return abs(math.sqrt(math.pow((b['x1'] - a['x1']), 2) + math.pow((b['y1'] - a['y1']), 2)))
 
+
 def bottom_right_distance(a, b):
     return abs(math.sqrt(math.pow((b['x2'] - a['x2']), 2) + math.pow((b['y2'] - a['y2']), 2)))
+
 
 def distance(a, b):
     centroid_a = centroid(a)
     centroid_b = centroid(b)
     return abs(math.sqrt(math.pow((centroid_b['x'] - centroid_a['x']), 2) + math.pow((centroid_b['y'] - centroid_a['y']), 2)))
+
 
 def get_gaps(x_axis):
     '''
@@ -180,6 +187,7 @@ def expand_area(input_area, all_areas):
             extract.update(candidate_new_extract)
 
     return extract
+
 
 # Translated from the C++ implementation found here - http://www.geeksforgeeks.org/check-if-two-given-line-segments-intersect/
 def lines_intersect(l1, l2):
@@ -306,6 +314,7 @@ def lines_intersect(l1, l2):
 
     return False
 
+
 def get_header_footer(pages, page_height, page_width):
     header = { 'x1': 0, 'y1': 0, 'x2': 0, 'y2': 0 }
     footer = { 'x1': 0, 'y1': 0, 'x2': 0, 'y2': 0 }
@@ -379,6 +388,7 @@ def buffer(area, amt):
         'y2': area['y2'] + amt
     }
 
+
 def reclassify_areas(page_areas, line_height):
     buffered_areas = [ buffer(area, line_height) for area in page_areas ]
     relationships = {}
@@ -418,6 +428,7 @@ def reclassify_areas(page_areas, line_height):
             })
 
     return new_areas
+
 
 def plot_new_areas(page_no, areas):
     fig = plt.figure()
@@ -535,6 +546,7 @@ def area_summary(area):
     summary['word_area_index'] = 0 if summary['words'] == 0 else np.sum(summary['word_areas']) / float(summary['area'])
 
     return summary
+
 
 def summarize_document(area_stats):
     # Don't use areas with 1 line or no words in creating summary statistics
