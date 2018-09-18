@@ -27,19 +27,6 @@ def file_name_without_ext(path):
         .replace("(", "").replace(")", "")
 
 
-def process_publication(pdf_path, out_dir):
-    print("Starting to preprocess {} ...".format(pdf_path))
-    func_call = ['./preprocess.sh', out_dir, pdf_path]
-    call(func_call)
-    print("Completed call: {}".format(" ".join(func_call)))
-    print("Starting to extract tables {} ...".format(pdf_path))
-    try:
-        extract_tables(out_dir)
-        print("Completed table extraction {} ...".format(pdf_path))
-    except:
-        print("Could not extract tables from {}".format(pdf_path))
-
-
 def create_output_directory(pdf_path):
     file_name = file_name_without_ext(pdf_path)
     out_directory = Path(OUT_DIR) / file_name
@@ -49,7 +36,8 @@ def create_output_directory(pdf_path):
 
 def handle_paper(pdf_path):
     out_directory = create_output_directory(pdf_path)
-    process_publication(str(pdf_path), str(out_directory))
+    func_call = ['./process-pdf.sh', str(out_directory), str(pdf_path)]
+    call(func_call)
 
 
 OUT_DIR = "./output"
