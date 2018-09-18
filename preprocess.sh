@@ -18,7 +18,7 @@ gs -dBATCH -dNOPAUSE -sDEVICE=png16m -dGraphicsAlphaBits=4 -dTextAlphaBits=4 -r6
 cp "$2" "$1/orig.pdf"
 pdftotext $1/orig.pdf - -enc UTF-8 > $1/text.txt
 
-ls $1/png | grep -o '[0-9]\+' | parallel -j 4 "./process.sh $1 {}"
+ls $1/png | grep -o '[0-9]\+' | parallel -j 4 "./process-page.sh $1 {}"
 
 
 if [ -f $1/plain_text.txt ]
