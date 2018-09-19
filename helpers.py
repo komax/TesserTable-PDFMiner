@@ -6,7 +6,8 @@ from PIL import Image
 from shapely.geometry import Polygon
 from shapely.ops import cascaded_union
 
-
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 
