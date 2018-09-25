@@ -42,7 +42,7 @@ def handle_page(page_path):
                     lambda e: e.text,
                     list(line.find_all("span", "ocrx_word")
                          )))
-                regex.
+                match = regex.findall(line_text)
                 print((i, line_text))
 
             #     for word in line.find_all("span", "ocrx_word"):
