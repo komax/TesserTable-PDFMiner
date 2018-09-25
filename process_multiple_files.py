@@ -1,13 +1,9 @@
 #!/usr/bin/env python
 
 import argparse
-import sys
 
 from pathlib import Path
 from subprocess import call
-from multiprocessing import Pool
-
-from table_extractor import extract_tables
 
 
 def set_up_argparser():
