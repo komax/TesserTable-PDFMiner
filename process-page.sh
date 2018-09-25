@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 
 tesseract $1/png/page_$2.png $1/tesseract/page_$2.html hocr txt
 mv $1/tesseract/page_$2.html.txt $1/tesseract-txt/page_$2.txt

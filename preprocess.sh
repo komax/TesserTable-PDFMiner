@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 
 if [ $# -lt 2 ]
   then echo -e "Please provide an output directory and an input PDF. Example: pdf2hocr ./ocrd ~/Downloads/document.pdf"
@@ -18,7 +18,13 @@ gs -dBATCH -dNOPAUSE -sDEVICE=png16m -dGraphicsAlphaBits=4 -dTextAlphaBits=4 -r6
 cp "$2" "$1/orig.pdf"
 pdftotext $1/orig.pdf - -enc UTF-8 > $1/text.txt
 
-ls $1/png | grep -o '[0-9]\+' | parallel -j 4 "./process-page.sh $1 {}"
+
+# from https://stackoverflow.com/questions/6481005/how-to-obtain-the-number-of-cpus-cores-in-linux-from-the-command-line
+cpu_count=`getconf _NPROCESSORS_ONLN`
+
+ls $1/png | grep -o '[0-9]\+' | parallel -j ${cpu_count} "./process-page.sh $1 {}"
+#ls $1/png | grep -o '[0-9]\+' | parallel -j ${NSLOTS:-1} "./process-page.sh $1 {}"
+
 
 
 if [ -f $1/plain_text.txt ]
