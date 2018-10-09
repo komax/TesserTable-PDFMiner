@@ -21,7 +21,8 @@ def select_hocr_files(input_dir):
 
 def build_methods_regex():
     terms = ["Method", "METHOD", "Materials and Methods",
-             "MATERIALS AND METHODS", "Material and methods",
+             "MATERIALS AND METHODS", "Materials methods",
+             "Material and methods",
              "Study site and methods", "Study Area and Methods",
              "M E T H O D S", "Material and Methods", "STUDY SITE AND METHODS",
              "Materials and Methods", "Study area and methods",
