@@ -29,7 +29,7 @@ def build_methods_regex():
              "Study sites and methods", "MATERIAL AND METHODS",
              "MATERIALS AN D METHODS", "Sample sites and methods"]
     regex = re.compile(r'^([0-9]+.?\s*)?({})'.format("|".join(terms)))
-    print(regex)
+    #print(regex)
     return regex
 
 
@@ -44,7 +44,9 @@ def handle_page(page_path):
                     list(line.find_all("span", "ocrx_word")
                          )))
                 match = regex.findall(line_text)
-                print((i, line_text))
+                if match:
+                    print(match)
+                #print((i, line_text))
 
             #     for word in line.find_all("span", "ocrx_word"):
             #         pass
@@ -65,9 +67,11 @@ def main():
     parser = set_up_argparser()
     args = parser.parse_args()
     hocr_files = select_hocr_files(args.inputdir)
-    print(hocr_files)
+    # Sort files by page number.
+    hocr_files.sort(key=lambda f: int(''.join(filter(str.isdigit, f.stem))))
 
-    for hocr in hocr_files[10:11]:
+    for hocr in hocr_files:
+        print("Handle page {}".format(hocr))
         handle_page(hocr)
 
 
