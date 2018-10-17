@@ -6,6 +6,7 @@ import re
 from pathlib import Path
 
 from bs4 import BeautifulSoup
+import nltk
 
 
 def set_up_argparser():
@@ -17,6 +18,17 @@ def set_up_argparser():
 
 def select_hocr_files(input_dir):
     return sorted(Path(input_dir).glob('*.html'))
+
+
+stopwords = nltk.corpus.stopwords.words('english')
+
+
+def stopwords_per_line(words):
+    count = 0
+    for word in words:
+        if word.text in stopwords:
+            count += 1
+    return count
 
 
 def build_methods_regex():
@@ -39,13 +51,15 @@ def handle_page(page_path):
         regex = build_methods_regex()
         for area in page_soup.find_all("div", "ocr_carea"):
             for i, line in enumerate(area.find_all("span", "ocr_line")):
-                line_text = " ".join(map(
-                    lambda e: e.text,
-                    list(line.find_all("span", "ocrx_word")
-                         )))
+                words = list(line.find_all("span", "ocrx_word"))
+                line_text = " ".join(map(lambda e: e.text, words))
                 match = regex.findall(line_text)
+                number_stop_words = stopwords_per_line(words)
+                print("Number of stop words={} of {} words and ratio={}".format(
+                    number_stop_words, len(words), number_stop_words/len(words)))
+
                 if match:
-                    print(match)
+                    print("Match {} at line number {}".format(match, i))
                 #print((i, line_text))
 
             #     for word in line.find_all("span", "ocrx_word"):
@@ -70,7 +84,7 @@ def main():
     # Sort files by page number.
     hocr_files.sort(key=lambda f: int(''.join(filter(str.isdigit, f.stem))))
 
-    for hocr in hocr_files:
+    for hocr in hocr_files[1:2]:
         print("Handle page {}".format(hocr))
         handle_page(hocr)
 
