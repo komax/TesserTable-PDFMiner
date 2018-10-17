@@ -1,0 +1,1 @@
+^([0-9]+.?\s*)?(References|Bibliography|Literature|LITERATURE|REFERENCES|R E F E R E N C E S)
