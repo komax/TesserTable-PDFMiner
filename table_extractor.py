@@ -8,7 +8,8 @@ import itertools
 import helpers
 import glob
 
-from annotate import plot_table_detection
+from annotate import plot_table_detection, store_table_metadata_in_soup, \
+    write_table_metadata_to_hocr_files
 from functools import reduce
 
 np.set_printoptions(threshold=np.inf)
@@ -720,9 +721,6 @@ def extract_tables(document_path):
     # Classify and assign a table score to each area in each page
     pages = [classify_areas(page, doc_stats) for page in pages]
 
-    # Plot table detection
-    plot_table_detection(pages, document_path)
-
     # Identify the areas that classified as 'text block's and record their widths
     text_block_widths = []
     for page in pages:
@@ -764,10 +762,18 @@ def extract_tables(document_path):
         for ai, area in enumerate(new_pages[page['page_no']]['areas']):
             new_pages[page['page_no']]['areas'][ai]['lines'] = [ line for line in page['soup'].find_all('span', 'ocr_line') if helpers.rectangles_intersect(area['geom'], helpers.extractbbox(line.get('title')))]
 
-
     for page in pages:
         new_areas = helpers.reclassify_areas(page['areas'], doc_stats['line_height_avg']/2)
         # helpers.plot_new_areas(page['page_no'], new_areas)
+
+    # Plot table detection
+    plot_table_detection(pages, document_path)
+
+    # Store table scores and type of the areas in the hocr files
+    store_table_metadata_in_soup(pages)
+    write_table_metadata_to_hocr_files(pages, document_path)
+
+
 
     doc_stats['found_tables'] = figure_idx
     print('these tables were found --')
