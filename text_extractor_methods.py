@@ -101,8 +101,8 @@ def detect_start_method_section(hocr_files):
     method_regex = build_methods_regex()
 
     for page_no, page_soup in enumerate(soup_generator(hocr_files)):
-            for area in page_soup.find_all("div", "ocr_carea"):
-                for i, line in enumerate(area.find_all("span", "ocr_line")):
+            for area_no, area in enumerate(page_soup.find_all("div", "ocr_carea")):
+                for line_no, line in enumerate(area.find_all("span", "ocr_line")):
                     words = list(line.find_all("span", "ocrx_word"))
                     line_text = " ".join(map(lambda e: e.text, words))
                     match = method_regex.findall(line_text)
@@ -114,20 +114,40 @@ def detect_start_method_section(hocr_files):
                     #         number_stop_words / len(words)))
 
                     if match:
-                        print("Match {} at line number {}".format(match, i))
-                        return page_no, area, line
+                        print("Match {} at line number {}".format(match, line_no))
+                        return page_no, area_no, line_no
 
     raise RuntimeError("Cannot find a method section in {}".format(hocr_files[0].parent))
 
 
-def compose_methods_text(hocr_files, page_no_method_start, area_method_start,
-                         method_start_line):
+def compose_methods_text(hocr_files, page_no_method_start, area_no_method_start,
+                         line_no_method_start):
     method_text = list()
 
+    bib_regex = build_literature_heading_regex()
+    method_end_regex = build_end_methods_regex()
+
     for page_no, page_soup in enumerate(soup_generator(hocr_files)):
-        if page_no < page_no_method_start:
-            # skip this page
-            continue
+        if page_no_method_start <= page_no:
+            for area_no, area in enumerate(page_soup.find_all("div", "ocr_carea")):
+                if page_no == page_no_method_start and area_no < area_no_method_start:
+                    # skip this area because it is not in the methods section.
+                    continue
+                elif not area['ts:type'] == 'text block':
+                    # skip any area that is not labelled as a text block.
+                    continue
+                for line_no, line in enumerate(area.find_all("span", "ocr_line")):
+                    if page_no == page_no_method_start and area_no_method_start == area_no and line_no < line_no_method_start:
+                        # skip this line because it is before the method section starts.
+                        continue
+                    words = list(line.find_all("span", "ocrx_word"))
+                    line_text = " ".join(map(lambda e: e.text, words))
+                    # if method_end_regex.match(line_text) or bib_regex.match(line_text):
+                    #     if stopwords_per_line(words) < 2:
+                    #         return '\n'.join(method_text)
+                    else:
+                        method_text.append(line_text)
+
 
     return '\n'.join(method_text)
 
@@ -138,7 +158,7 @@ def main():
     hocr_files = select_hocr_files(args.inputdir)
     # Sort files by page number.
     hocr_files.sort(key=lambda f: int(''.join(filter(str.isdigit, f.stem))))
-    hocr_files = hocr_files[1:2]
+    #hocr_files = hocr_files[1:2]
     print(hocr_files)
 
     page_no, area_method_start, line_method_start = \
