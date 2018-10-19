@@ -128,12 +128,14 @@ def compose_methods_text(hocr_files, page_no_method_start, area_no_method_start,
     method_end_regex = build_end_methods_regex()
 
     for page_no, page_soup in enumerate(soup_generator(hocr_files)):
+        # FIXME Hanlde page_no_method_start differently than others.
         if page_no_method_start <= page_no:
             for area_no, area in enumerate(page_soup.find_all("div", "ocr_carea")):
                 if page_no == page_no_method_start and area_no < area_no_method_start:
                     # skip this area because it is not in the methods section.
                     continue
                 elif not area['ts:type'] == 'text block':
+                    # TODO: less restrictive. Keep anything that is not table or caption or decoration.
                     # skip any area that is not labelled as a text block.
                     continue
                 for line_no, line in enumerate(area.find_all("span", "ocr_line")):
@@ -142,13 +144,12 @@ def compose_methods_text(hocr_files, page_no_method_start, area_no_method_start,
                         continue
                     words = list(line.find_all("span", "ocrx_word"))
                     line_text = " ".join(map(lambda e: e.text, words))
+                    # FIXME Find a way to match the end heading which might not be a text block at all.
                     # if method_end_regex.match(line_text) or bib_regex.match(line_text):
                     #     if stopwords_per_line(words) < 2:
                     #         return '\n'.join(method_text)
-                    else:
-                        method_text.append(line_text)
-
-
+                    #else:
+                    method_text.append(line_text)
     return '\n'.join(method_text)
 
 
@@ -159,13 +160,13 @@ def main():
     # Sort files by page number.
     hocr_files.sort(key=lambda f: int(''.join(filter(str.isdigit, f.stem))))
     #hocr_files = hocr_files[1:2]
-    print(hocr_files)
 
-    page_no, area_method_start, line_method_start = \
+    page_no, area_no_method_start, line_no_method_start = \
         detect_start_method_section(hocr_files)
 
-    method_text = compose_methods_text(hocr_files, page_no, area_method_start,
-                                       line_method_start)
+    method_text = compose_methods_text(hocr_files, page_no,
+                                       area_no_method_start,
+                                       line_no_method_start)
 
     print("Detected text in the methods section:")
     print(method_text)
