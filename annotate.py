@@ -185,7 +185,7 @@ def write_table_metadata_to_hocr_files(pages, document_path):
         print("Write new soup for page={}".format(page_no))
         with open(document_path + '/tesseract/page_' + page_no + '.html', 'w') as hocr_file:
             soup = page['soup']
-            hocr_file.write(soup.prettify())
+            hocr_file.write(str(soup))
 
 
 if __name__ == '__main__':

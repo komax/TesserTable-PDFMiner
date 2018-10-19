@@ -106,6 +106,7 @@ def detect_start_method_section(hocr_files):
                     words = list(line.find_all("span", "ocrx_word"))
                     line_text = " ".join(map(lambda e: e.text, words))
                     match = method_regex.findall(line_text)
+                    print(line_text)
                     number_stop_words = stopwords_per_line(words)
                     # print(
                     #     "Number of stop words={} of {} words and ratio={}".format(
