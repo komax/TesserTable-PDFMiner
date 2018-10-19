@@ -1,5 +1,4 @@
 from bs4 import BeautifulSoup
-from plot import plot
 import math
 import re
 import numpy as np
@@ -347,8 +346,6 @@ def tess():
                 extracts[extract_idx].update(helpers.enlarge_extract(extracts[extract_idx], area_stats[area_idx]))
             else:
                 break
-
-    plot(soup, extracts)
 
 
     # for idx, area in enumerate(area_stats):
