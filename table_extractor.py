@@ -654,8 +654,8 @@ def extract_tables(document_path):
     # Check if a native text layer is available and load it
     text_layer = ''
     has_text_layer = False
-    if os.path.exists(document_path + '/text.txt') and os.path.getsize(document_path + '/text.txt') > 1:
-        with open(document_path + '/text.txt') as t:
+    if os.path.exists(document_path + '/pdftotext.txt') and os.path.getsize(document_path + '/pdftotext.txt') > 1:
+        with open(document_path + '/pdftotext.txt') as t:
             text_layer = t.read()
             has_text_layer = True
     else:
