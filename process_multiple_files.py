@@ -33,14 +33,14 @@ def create_output_directory(pdf_path):
 def handle_paper(pdf_path):
     out_directory = str(create_output_directory(pdf_path))
     basename_pdf = file_name_without_ext(pdf_path)
-    # qsub_call = ['qsub',
-    #     '-N', f'table-extract-{basename_pdf[:20]}',
-    #     '/home/konzack/scripts/table-extract-pdf.sh']
-    func_call = ['./process-pdf.sh', out_directory, str(pdf_path)]
-    #qsub_call.extend([out_directory, str(pdf_path)])
-    #print(" ".join(qsub_call))
-    call(func_call)
-    #call(qsub_call)
+    qsub_call = ['qsub',
+         '-N', f'table-extract-{basename_pdf[:20]}',
+         '/home/konzack/scripts/table-extract-pdf.sh']
+    #func_call = ['./process-pdf.sh', out_directory, str(pdf_path)]
+    qsub_call.extend([out_directory, str(pdf_path)])
+    print(" ".join(qsub_call))
+    #call(func_call)
+    call(qsub_call)
 
 
 OUT_DIR = "./output"

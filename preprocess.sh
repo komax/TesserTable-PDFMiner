@@ -22,8 +22,8 @@ pdftotext $1/orig.pdf - -enc UTF-8 > $1/text.txt
 # from https://stackoverflow.com/questions/6481005/how-to-obtain-the-number-of-cpus-cores-in-linux-from-the-command-line
 cpu_count=`getconf _NPROCESSORS_ONLN`
 
-ls $1/png | grep -o '[0-9]\+' | parallel -j ${cpu_count} "./process-page.sh $1 {}"
-#ls $1/png | grep -o '[0-9]\+' | parallel -j ${NSLOTS:-1} "./process-page.sh $1 {}"
+#ls $1/png | grep -o '[0-9]\+' | parallel -j ${cpu_count} "./process-page.sh $1 {}"
+ls $1/png | grep -o '[0-9]\+' | parallel -j ${NSLOTS:-1} "./process-page.sh $1 {}"
 
 
 
