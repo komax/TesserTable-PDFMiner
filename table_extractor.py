@@ -274,7 +274,7 @@ def process_page(doc_stats, page):
                 # Number of pixels area overlaps with current extract extent
                 overlap = max([ 0, abs(min([ area['x2'], extract['x2'] ]) - max([ extract['x1'], area['x1'] ])) ])
                 area_length = area['x2'] - area['x1']
-                percent_overlap = float(overlap) / area_length
+                percent_overlap = float(overlap) / area_length if area_length else 0
 
                 # If the area overlaps more than 90% in x space with the target area
                 if percent_overlap >= 0.9:
@@ -636,7 +636,7 @@ def process_page(doc_stats, page):
         covers = False
         for each in extracts:
             intersection = extract_poly.intersection(helpers.make_polygon(each))
-            if intersection >= (extract_poly.area * 0.9):
+            if intersection.area >= (extract_poly.area * 0.9):
                 covers = True
 
         if not covers:
