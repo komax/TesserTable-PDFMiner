@@ -3,3 +3,4 @@ Pillow
 beautifulsoup4
 matplotlib
 shapely==1.6.4
+nltk
