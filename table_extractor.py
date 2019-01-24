@@ -766,12 +766,14 @@ def extract_tables(document_path):
         new_areas = helpers.reclassify_areas(page['areas'], doc_stats['line_height_avg']/2)
         # helpers.plot_new_areas(page['page_no'], new_areas)
 
-    # Plot table detection
-    plot_table_detection(pages, document_path)
 
     # Store table scores and type of the areas in the hocr files
     store_table_metadata_in_soup(pages)
     write_table_metadata_to_hocr_files(pages, document_path)
+    print("Completed writing hocr files")
+
+    # Plot table detection
+    plot_table_detection(pages, document_path)
 
 
 
