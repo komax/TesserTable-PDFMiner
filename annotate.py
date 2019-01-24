@@ -152,7 +152,7 @@ def plot_table_detection_per_page(page, path, overlay=True, out_dir='table-detec
         ax.imshow(img)
     plt.axis('off')
     outfile = path + "/" + out_dir + "/page_" + page['page_no'] + ".png"
-    fig.savefig(outfile, dpi=600, bbox_inches='tight', pad_inches=0)
+    fig.savefig(outfile, dpi=400, bbox_inches='tight', pad_inches=0)
     plt.close(fig)
 
 
