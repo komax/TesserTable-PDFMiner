@@ -1,5 +1,5 @@
 numpy==1.15.0
 Pillow
-beautifulsoup4==4.5.1
+beautifulsoup4
 matplotlib
 shapely==1.6.4
