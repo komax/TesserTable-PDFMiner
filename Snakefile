@@ -1,12 +1,11 @@
 
-
 rule mk_dir:
     input:
         pdf="pdfs/{pdf_file}.pdf"
     output:
-        pdf_dir="ocr_output/{pdf_file}"
-    script:
-        "foo.sh"
+        pdf_dir=directory("ocr_output/{pdf_file}")
+    shell:
+        "scripts/mkdir_for_pdf.sh {output.pdf_dir}"
 
 rule pages_to_png:
     script:
