@@ -3,7 +3,12 @@ channels:
   - conda-forge
 dependencies:
   - snakemake-minimal = 5.4.0
-  - python = 3.6
+  - python = 3.5
   - tesseract = 4.0.0
   - parallel = 20190322
   - ghostscript = 9.22
+  - beautifulsoup4 = 4.5.1
+  - matplotlib = 2.2.3
+  - shapely = 1.6.4
+  - numpy = 1.15.0
+  - pillow = 5.2.0
