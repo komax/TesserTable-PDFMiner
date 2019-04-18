@@ -1,6 +1,6 @@
 # Optical Character Recognition (OCR) and table extraction
-This respository uses OCR to transform PDFs to [hocr files](http://kba.cloud/hocr-spec)
-and classifies (areas in the hocr files)[http://kba.cloud/hocr-spec/1.2/#sec-ocr_carea] as tables and other textual representations using (table-extract)[https://github.com/UW-Deepdive-Infrastructure/table-extract].
+A tool which makes use of OCR to transform PDFs to [hocr files](http://kba.cloud/hocr-spec)
+and classifies [areas in the hocr files](http://kba.cloud/hocr-spec/1.2/#sec-ocr_carea) as tables and other textual representations by using [table-extract](https://github.com/UW-Deepdive-Infrastructure/table-extract).
 
 
 ## Requirements
