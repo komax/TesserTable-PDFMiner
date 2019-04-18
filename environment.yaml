@@ -1,0 +1,9 @@
+channels:
+  - bioconda
+  - conda-forge
+dependencies:
+  - snakemake-minimal = 5.4.0
+  - python = 3.6
+  - tesseract = 4.0.0
+  - parallel = 20190322
+  - ghostscript = 9.22
