@@ -57,30 +57,30 @@ rule pdf_to_text:
     shell:
         "pdftotext {input.pdf} - -enc UTF-8 > {output.txt}"
 
-rule pdf_to_png:
+# rule pdf_to_png:
+#     input:
+#         pdf="ocr_output/Dominguez-Haydar_2011/orig.pdf"
+#     output:
+#         png_dir=directory("ocr_output/Dominguez-Haydar_2011/png/")
+#     run:
+#         page_no=range(1, number_pages_pdf(input.pdf) + 1)
+#         print(list(page_no))
+#         shell("echo {output.png_dir}")
+
+
+rule pages_to_png:
     input:
         pdf="ocr_output/{filename}/orig.pdf"
     output:
-        png_dir=directory("ocr_output/{filename}/png/")
+        pngs="ocr_output/{filename}/png/page_{page_no}.png"#,
+        #png_dir=directory("ocr_output/{filename}/png/page_{page_no}.png")
+    wildcard_constraints:
+        page_no="\d+"
     run:
-        page_no=range(1, number_pages_pdf(input.pdf))
-        print(list(page_no))
-        shell("echo {output.pngs}")
-
-
-# rule pages_to_png:
-#     input:
-#         pdf="ocr_output/{filename}/orig.pdf"
-#     output:
-#         pngs="ocr_output/{filename}/png/page_{page_no}.png"#,
-#         #png_dir=directory("ocr_output/{filename}/png/page_{page_no}.png")
-#     wildcard_constraints:
-#         page_no="\d+"
-#     run:
-#         #pages=shell("pdfinfo {input.pdf} | grep '^Pages:'")
-#         #for val in shell("pdfinfo {input.pdf} | grep '^Pages:'"):
-#         #    print(val)
-#         shell("scripts/pdf_to_png.sh ocr_output/{wildcards.filename}/png {input.pdf}")
+        #pages=shell("pdfinfo {input.pdf} | grep '^Pages:'")
+        #for val in shell("pdfinfo {input.pdf} | grep '^Pages:'"):
+        #    print(val)
+        shell("scripts/pdf_to_png.sh ocr_output/{wildcards.filename}/png {input.pdf}")
 
 rule ocr_page:
     input:
@@ -93,12 +93,25 @@ rule ocr_page:
     run:
         #shell("echo {input.png} {output.hocr}")
         shell("scripts/ocr_tesseract.sh {input.png} {output.hocr} ocr_output/{wildcards.filename}")
-        # Employ gnu parallel.
+        # FIXME Employ gnu parallel.
+
+# TODO OCR all pages in parallel.
 
 rule merge_ocr_txt:
     input:
+    # FIXME use pages_{page_no}.txt as input using a global wildcard.
+        pdf="ocr_output/{filename}/orig.pdf"
+    output:
+        ocr_txt="ocr_output/{filename}/ocr_text.txt"
+    run:
+        pngs=expand("ocr_output/{filename}/ocr-txt/page_{page_no}.txt", page_no=range(1, number_pages_pdf(input.pdf) + 1), filename=wildcards.filename)
+        shell("cat {pngs} > {output.ocr_txt}")
+        print(input.pdf)
+        print(pngs)
+        print(output.ocr_txt)
 
 
 rule table_extract:
     run:
         "table-extract.py"
+        #FIXME Implement this.
