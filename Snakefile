@@ -26,28 +26,14 @@ rule pdf_to_text:
 
 rule pages_to_png:
     input:
-        pdf="pdfs/{pdf_file}.pdf"
+        pdf="ocr_output/{filename}/orig.pdf"
     output:
-        png_dir=directory("ocr_output/{pdf_file}/png/page_{page_no}.png")
+        pngs="ocr_output/{filename}/png/page_{page_no}.png"#,
+        #png_dir=directory("ocr_output/{filename}/png/page_{page_no}.png")
     wildcard_constraints:
         page_no="\d+"
     run:
-        shell("echo {wildcards.page_no}")
-        print(input.pdf)
-        print(wildcards.page_no)
-        print("I am in a rule for page {wildcards.page_no}")
-
-rule pdf_to_png:
-    input:
-        pdf="pdfs/{pdf_file}.pdf"
-#    output:
-#        png_dir=directory("ocr_output/{pdf_file}/png")
-    output:
-        png_dir=directory("ocr_output/{pdf_file}/png/page_{page_no}.png")
-    wildcard_constraints:
-        page_no="\d+"
-    shell:
-        "scripts/pdf_to_png.sh {output.png_dir} {input.pdf}"
+        shell("scripts/pdf_to_png.sh ocr_output/{wildcards.filename}/png {input.pdf}")
 
 rule ocr_tesseract:
     script:
