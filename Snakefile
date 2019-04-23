@@ -1,4 +1,12 @@
 
+def number_pages_pdf(pdf_file):
+    result_bytes = shell("pdfinfo {pdf_file} | grep '^Pages:' | sed 's/[^0-9]*//'", read=True)
+    result_str = result_bytes.decode("utf-8")
+    return int(result_str)
+
+rule simple:
+    run:
+        number_pages_pdf("pdfs/Dominguez-Haydar_2011.pdf")
 
 rule mk_dir:
     input:
@@ -42,12 +50,13 @@ rule ocr_page:
     input:
         png="ocr_output/{filename}/png/page_{page_no}.png"
     output:
-        hocr="ocr_output/{filename}/hocr/page_{page_no}.hocr"
+        hocr="ocr_output/{filename}/hocr/page_{page_no}.hocr",
+        txt="ocr_output/{filename}/ocr-txt/page_{page_no}.txt"
     wildcard_constraints:
         page_no="\d+"
     run:
         #shell("echo {input.png} {output.hocr}")
-        shell("scripts/ocr_tesseract.sh {input.png} {output.hocr}")
+        shell("scripts/ocr_tesseract.sh {input.png} {output.hocr} ocr_output/{wildcards.filename}")
         # Employ gnu parallel.
 
 
