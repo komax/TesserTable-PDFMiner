@@ -33,12 +33,23 @@ rule pages_to_png:
     wildcard_constraints:
         page_no="\d+"
     run:
+        #pages=shell("pdfinfo {input.pdf} | grep '^Pages:'")
+        #for val in shell("pdfinfo {input.pdf} | grep '^Pages:'"):
+        #    print(val)
         shell("scripts/pdf_to_png.sh ocr_output/{wildcards.filename}/png {input.pdf}")
 
-rule ocr_tesseract:
-    script:
-        "ocr_script.sh"
+rule ocr_page:
+    input:
+        png="ocr_output/{filename}/png/page_{page_no}.png"
+    output:
+        hocr="ocr_output/{filename}/hocr/page_{page_no}.hocr"
+    wildcard_constraints:
+        page_no="\d+"
+    run:
+        #shell("echo {input.png} {output.hocr}")
+        shell("scripts/ocr_tesseract.sh {input.png} {output.hocr}")
         # Employ gnu parallel.
+
 
 rule table_extract:
     run:
