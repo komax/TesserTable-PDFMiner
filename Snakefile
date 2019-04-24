@@ -62,7 +62,6 @@ rule ocr_page:
     wildcard_constraints:
         page_no="\d+"
     run:
-        #shell("echo {input.png} {output.hocr}")
         shell("scripts/ocr_tesseract.sh {input.png} {output.hocr} ocr_output/{wildcards.filename}")
         # FIXME Employ gnu parallel.
 
@@ -75,12 +74,7 @@ rule merge_ocr_txt:
     output:
         ocr_txt="ocr_output/{filename}/ocr_text.txt"
     run:
-        print("-------------")
-        print(input)
-        print("------------")
         txts =input[0:-1]
-        print("Calling: cat {txts} > {output.ocr_txt}")
-        #expand("ocr_output/{filename}/ocr-txt/page_{page_no}.txt", page_no=range(1, number_pages_pdf(input.pdf) + 1), filename=wildcards.filename)
         shell("cat {txts} > {output.ocr_txt}")
 
 
