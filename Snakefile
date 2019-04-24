@@ -1,36 +1,22 @@
-from pathlib import Path
 
-OUTDIR = "output"
+OUTDIR = "ocr_output"
 
+filenames = glob_wildcards("pdfs/{filename}.pdf")
 
-def all_pdfs(dir='pdfs'):
-    ext = "pdf"
-    pdf_paths = sorted(Path(dir).glob('*.{}'.format(ext)))
-    return list(map(str, pdf_paths))
+def all_pdftotext_files(wildcards):
+    return list(map(lambda p: f"{OUTDIR}/{p}/pdftotext.txt", wildcards.filename))
 
-
-def tr_pdf_to_out_dir(pdf_input, out_dir="ocr_output"):
-    file_path = Path(pdf_input)
-    return Path(out_dir) / file_path.stem
-
-
-def all_pdftotext_files(paths):
-    return list(map(lambda path: str(tr_pdf_to_out_dir(path) / "pdftotext.txt"), paths))
-
-
-def number_pages_pdf(pdf_file):
-    result_bytes = shell("pdfinfo {pdf_file} | grep '^Pages:' | sed 's/[^0-9]*//'", read=True)
-    result_str = result_bytes.decode("utf-8")
-    return int(result_str)
 
 rule all:
     input:
-        pdftotxts=all_pdftotext_files(all_pdfs())
+        pdftotxts=all_pdftotext_files(filenames)
     run:
-        print(input.pdftotxts)
+        for txt in input.pdftotxts:
+            print(f"Used pdftotext for file: {txt}")
 
 rule simple:
     run:
+        print(filenames)
         number_pages_pdf("pdfs/Dominguez-Haydar_2011.pdf")
 
 # rule mk_dir:
