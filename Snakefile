@@ -1,3 +1,4 @@
+from scripts.utils import PDFArtefacts
 
 OUTDIR = "ocr_output"
 
@@ -5,6 +6,9 @@ filenames = glob_wildcards("pdfs/{filename}.pdf")
 
 def all_pdftotext_files(wildcards):
     return list(map(lambda p: f"{OUTDIR}/{p}/pdftotext.txt", wildcards.filename))
+
+def all_ocr_text_files(wildcards):
+    return list(map(lambda p: f"{OUTDIR}/{p}/ocr_text.txt", wildcards.filename))
 
 
 rule all:
@@ -14,10 +18,13 @@ rule all:
         for txt in input.pdftotxts:
             print(f"Used pdftotext for file: {txt}")
 
-rule simple:
+rule ocr_all:
+    input:
+        ocr_txts=all_ocr_text_files(filenames)
     run:
-        print(filenames)
-        number_pages_pdf("pdfs/Dominguez-Haydar_2011.pdf")
+        for txt in input.ocr_txts:
+            print(f"Genered OCR text for file: {txt}")
+
 
 # rule mk_dir:
 #     input:
@@ -40,33 +47,19 @@ rule pdf_to_text:
         pdf="ocr_output/{pdf_file}/orig.pdf"
     output:
         txt="ocr_output/{pdf_file}/pdftotext.txt"
-    shell:
-        "pdftotext {input.pdf} - -enc UTF-8 > {output.txt}"
-
-# rule pdf_to_png:
-#     input:
-#         pdf="ocr_output/Dominguez-Haydar_2011/orig.pdf"
-#     output:
-#         png_dir=directory("ocr_output/Dominguez-Haydar_2011/png/")
-#     run:
-#         page_no=range(1, number_pages_pdf(input.pdf) + 1)
-#         print(list(page_no))
-#         shell("echo {output.png_dir}")
+    run:
+        shell("pdftotext {input.pdf} - -enc UTF-8 > {output.txt}")
 
 
-rule pages_to_png:
+rule pdf_to_png_page:
     input:
         pdf="ocr_output/{filename}/orig.pdf"
     output:
-        pngs="ocr_output/{filename}/png/page_{page_no}.png"#,
-        #png_dir=directory("ocr_output/{filename}/png/page_{page_no}.png")
+        png="ocr_output/{filename}/png/page_{page_no}.png"
     wildcard_constraints:
         page_no="\d+"
     run:
-        #pages=shell("pdfinfo {input.pdf} | grep '^Pages:'")
-        #for val in shell("pdfinfo {input.pdf} | grep '^Pages:'"):
-        #    print(val)
-        shell("scripts/pdf_to_png.sh ocr_output/{wildcards.filename}/png {input.pdf}")
+        shell("scripts/pdf_to_png.sh {wildcards.page_no} ocr_output/{wildcards.filename}/png {input.pdf}")
 
 rule ocr_page:
     input:
@@ -85,16 +78,18 @@ rule ocr_page:
 
 rule merge_ocr_txt:
     input:
-    # FIXME use pages_{page_no}.txt as input using a global wildcard.
+        lambda wildcards: PDFArtefacts(f"pdfs/{wildcards.filename}.pdf", OUTDIR).ocr_text(),
         pdf="ocr_output/{filename}/orig.pdf"
     output:
         ocr_txt="ocr_output/{filename}/ocr_text.txt"
     run:
-        pngs=expand("ocr_output/{filename}/ocr-txt/page_{page_no}.txt", page_no=range(1, number_pages_pdf(input.pdf) + 1), filename=wildcards.filename)
-        shell("cat {pngs} > {output.ocr_txt}")
-        print(input.pdf)
-        print(pngs)
-        print(output.ocr_txt)
+        print("-------------")
+        print(input)
+        print("------------")
+        txts =input[0:-1]
+        print("Calling: cat {txts} > {output.ocr_txt}")
+        #expand("ocr_output/{filename}/ocr-txt/page_{page_no}.txt", page_no=range(1, number_pages_pdf(input.pdf) + 1), filename=wildcards.filename)
+        shell("cat {txts} > {output.ocr_txt}")
 
 
 rule table_extract:
