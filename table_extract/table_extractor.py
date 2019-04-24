@@ -648,7 +648,7 @@ def process_page(doc_stats, page):
 
 
 # Entry into table extraction
-def extract_tables(document_path, subdir="hocr", ext="hocr", text_layer_filename='pdftotext.txt', subdir_ts="hocr-ts"):
+def extract_tables(document_path, subdir_hocr="hocr", ext="hocr", text_layer_filename='pdftotext.txt', subdir_ts="hocr-ts"):
     page_paths = glob.glob(f"{document_path}/{subdir}/*.{ext}")
 
     # Check if a native text layer is available and load it
@@ -774,6 +774,7 @@ def extract_tables(document_path, subdir="hocr", ext="hocr", text_layer_filename
     print("Completed writing hocr files")
 
     # Plot table detection
+    # FIXME make this optional.
     plot_table_detection(pages, document_path)
 
 
@@ -809,4 +810,5 @@ def extract_tables(document_path, subdir="hocr", ext="hocr", text_layer_filename
         #         print '    Line height average: %s' %(np.nanmean(area['line_heights']))
         #     plot(page['soup'], page_extracts)
         for table in page_extracts:
+            # FIXME Make this optional.
             helpers.extract_table(document_path, page['page_no'], table)
