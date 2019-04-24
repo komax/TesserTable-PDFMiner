@@ -74,11 +74,12 @@ def union_extracts(extracts):
         return [ polygon_to_extract(geom) for geom in unioned ]
 
 
-def extract_table(doc, page, extract):
-    image = Image.open('%s/png/page_%s.png' % (doc, page))
-    table_path = doc + '/tables/page_' + str(page) + '_' + extract['name'].replace(' ', '_').replace('.', '') + '.png'
+def extract_table(doc, page, extract, subdir_png='png', subdir_out='tables', ext='png'):
+    image = Image.open(f'{doc}/{subdir_png}/page_{page}.{ext}')
+    table_path = f'{doc}/{subdir_out}/page_{page}_' + extract['name'].replace(' ', '_').replace('.', '') + f'.{ext}'
+    #table_path =  doc + '/tables/page_' + str(page) + '_' + extract['name'].replace(' ', '_').replace('.', '') + '.png'
     cropped_table = image.crop((extract['x1'], extract['y1'], extract['x2'], extract['y2']))
-    cropped_table.save(table_path, format='png')
+    cropped_table.save(table_path, format=ext)
 
 
 def enlarge_extract(extract, area):

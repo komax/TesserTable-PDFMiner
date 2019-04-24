@@ -8,6 +8,7 @@ import itertools
 import helpers
 import glob
 
+from utils import TableExtractConfig
 from annotate import plot_table_detection, store_table_metadata_in_soup, \
     write_table_metadata_to_hocr_files
 from functools import reduce
@@ -648,13 +649,14 @@ def process_page(doc_stats, page):
 
 
 # Entry into table extraction
-def extract_tables(document_path, subdir_hocr="hocr", ext="hocr", text_layer_filename='pdftotext.txt', subdir_ts="hocr-ts"):
-    page_paths = glob.glob(f"{document_path}/{subdir}/*.{ext}")
+def extract_tables(document_path):
+    config = TableExtractConfig(document_path)
 
+    page_paths = config.hocr_files()
     # Check if a native text layer is available and load it
     text_layer = ''
     has_text_layer = False
-    text_layer_path = f"{document_path}/{text_layer_filename}"
+    text_layer_path = config.text_layer_path()
     if os.path.exists(text_layer_path) and os.path.getsize(text_layer_path) > 1:
         with open(text_layer_path) as t:
             text_layer = t.read()
@@ -663,11 +665,13 @@ def extract_tables(document_path, subdir_hocr="hocr", ext="hocr", text_layer_fil
         print('Does not have text layer')
 
     pages = []
+    # TODO use a threadpool to do this in parallel.
     for page_no, page in enumerate(page_paths):
         # Read in each tesseract page with BeautifulSoup so we can look at the document holistically
         with open(page) as hocr:
             text = hocr.read()
             soup = BeautifulSoup(text, 'html.parser')
+            # TODO use a named tuple for this purpose.
             pages.append({
                 'page_no': page.split('/')[-1].replace(f'.{ext}', '').replace('page_', ''),
                 'soup': soup,
@@ -775,7 +779,8 @@ def extract_tables(document_path, subdir_hocr="hocr", ext="hocr", text_layer_fil
 
     # Plot table detection
     # FIXME make this optional.
-    plot_table_detection(pages, document_path)
+    if config.is_writing_table_extract_boxes:
+        plot_table_detection(pages, config.document_path, sub_dir=config.subdir_table_extract_boxes)
 
 
 
@@ -809,6 +814,8 @@ def extract_tables(document_path, subdir_hocr="hocr", ext="hocr", text_layer_fil
         #         print '    Gaps: %s' % (area['gaps'])
         #         print '    Line height average: %s' %(np.nanmean(area['line_heights']))
         #     plot(page['soup'], page_extracts)
-        for table in page_extracts:
-            # FIXME Make this optional.
-            helpers.extract_table(document_path, page['page_no'], table)
+
+        if config.is_extracting_tables:
+            for table in page_extracts:
+                # FIXME Make this optional.
+                helpers.extract_table(document_path, page['page_no'], table)

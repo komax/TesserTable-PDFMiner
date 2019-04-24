@@ -125,12 +125,12 @@ def get_color_code(area_type):
     }[area_type]
 
 
-def plot_table_detection(pages, path):
+def plot_table_detection(pages, path, sub_dir='table-detection'):
     for page in pages:
-        plot_table_detection_per_page(page, path)
+        plot_table_detection_per_page(page, path, out_dir=sub_dir)
 
 
-def plot_table_detection_per_page(page, path, overlay=True, out_dir='table-detection'):
+def plot_table_detection_per_page(page, path, overlay=True, out_dir):
     fig = plt.figure()
     ax = fig.add_subplot(111, aspect='equal')
 
