@@ -51,7 +51,7 @@ rule pdf_to_png_page:
     wildcard_constraints:
         page_no="\d+"
     run:
-        shell("scripts/pdf_to_png.sh {wildcards.page_no} ocr_output/{wildcards.filename}/png {input.pdf}")
+        shell("scripts/pdf2png_page.sh {wildcards.page_no} ocr_output/{wildcards.filename}/png {input.pdf}")
 
 rule ocr_page:
     input:
@@ -62,7 +62,7 @@ rule ocr_page:
     wildcard_constraints:
         page_no="\d+"
     run:
-        shell("scripts/ocr_tesseract.sh {input.png} {output.hocr} ocr_output/{wildcards.filename}")
+        shell("scripts/ocr_page.sh {input.png} {output.hocr} ocr_output/{wildcards.filename}")
         # FIXME Employ gnu parallel.
 
 # TODO OCR all pages in parallel.
