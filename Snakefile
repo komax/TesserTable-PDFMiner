@@ -26,14 +26,6 @@ rule ocr_all:
             print(f"Genered OCR text for file: {txt}")
 
 
-# rule mk_dir:
-#     input:
-#         pdf="pdfs/{pdf_file}.pdf"
-#     output:
-#         pdf_dir=directory("ocr_output/{pdf_file}")
-#     shell:
-#         "scripts/mkdir_for_pdf.sh {output.pdf_dir}"
-
 rule cp_pdf:
     input:
         pdf="pdfs/{pdf_file}.pdf"
