@@ -648,14 +648,15 @@ def process_page(doc_stats, page):
 
 
 # Entry into table extraction
-def extract_tables(document_path):
-    page_paths = glob.glob(document_path + '/tesseract/*.html')
+def extract_tables(document_path, subdir="hocr", ext="hocr", text_layer_filename='pdftotext.txt', subdir_ts="hocr-ts"):
+    page_paths = glob.glob(f"{document_path}/{subdir}/*.{ext}")
 
     # Check if a native text layer is available and load it
     text_layer = ''
     has_text_layer = False
-    if os.path.exists(document_path + '/pdftotext.txt') and os.path.getsize(document_path + '/pdftotext.txt') > 1:
-        with open(document_path + '/pdftotext.txt') as t:
+    text_layer_path = f"{document_path}/{text_layer_filename}"
+    if os.path.exists(text_layer_path) and os.path.getsize(text_layer_path) > 1:
+        with open(text_layer_path) as t:
             text_layer = t.read()
             has_text_layer = True
     else:
@@ -668,7 +669,7 @@ def extract_tables(document_path):
             text = hocr.read()
             soup = BeautifulSoup(text, 'html.parser')
             pages.append({
-                'page_no': page.split('/')[-1].replace('.html', '').replace('page_', ''),
+                'page_no': page.split('/')[-1].replace(f'.{ext}', '').replace('page_', ''),
                 'soup': soup,
                 'page': helpers.extractbbox(soup.find_all('div', 'ocr_page')[0].get('title')),
                 'areas': [ area_summary(area) for area in soup.find_all('div', 'ocr_carea') ],
@@ -769,7 +770,7 @@ def extract_tables(document_path):
 
     # Store table scores and type of the areas in the hocr files
     store_table_metadata_in_soup(pages)
-    write_table_metadata_to_hocr_files(pages, document_path)
+    write_table_metadata_to_hocr_files(pages, document_path, subdir=subdir_ts)
     print("Completed writing hocr files")
 
     # Plot table detection
