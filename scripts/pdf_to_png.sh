@@ -1,5 +1,6 @@
 #!/bin/bash
 
-echo $1
-echo $2
-gs -dBATCH -dNOPAUSE -sDEVICE=png16m -dGraphicsAlphaBits=4 -dTextAlphaBits=4 -r600 -sOutputFile="$1/page_%d.png" "$2"
+PAGE_NO=$1
+OUTDIR=$2
+PDF=$3
+gs -dFirstPage=$PAGE_NO -dLastPage=$PAGE_NO -dBATCH -dNOPAUSE -sDEVICE=png16m -dGraphicsAlphaBits=4 -dTextAlphaBits=4 -r600 -sOutputFile="$OUTDIR/page_$PAGE_NO.png" "$PDF"
