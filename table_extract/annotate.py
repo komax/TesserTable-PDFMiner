@@ -130,7 +130,7 @@ def plot_table_detection(pages, path, sub_dir='table-detection'):
         plot_table_detection_per_page(page, path, out_dir=sub_dir)
 
 
-def plot_table_detection_per_page(page, path, overlay=True, out_dir):
+def plot_table_detection_per_page(page, path, out_dir, overlay=True):
     fig = plt.figure()
     ax = fig.add_subplot(111, aspect='equal')
 
