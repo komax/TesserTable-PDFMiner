@@ -9,11 +9,11 @@ class TableExtractConfig(object):
         
         self.text_layer_filename = "pdftotext.txt"
 
-        self.is_extracting_tables = False
+        self.is_extracting_tables = True
         self.subdir_extracted_tables = "tables"
         self.extracted_tables_ext = "png"
 
-        self.is_writing_table_extract_boxes = False
+        self.is_writing_table_extract_boxes = True
         self.subdir_table_extract_boxes = "table-detection"
 
     def hocr_files(self):

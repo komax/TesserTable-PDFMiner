@@ -5,11 +5,11 @@ import math
 import re
 import numpy as np
 import itertools
-import helpers
+import table_extract.helpers as helpers
 import glob
 
-from utils import TableExtractConfig
-from annotate import plot_table_detection, store_table_metadata_in_soup, \
+from table_extract.utils import TableExtractConfig
+from table_extract.annotate import plot_table_detection, store_table_metadata_in_soup, \
     write_table_metadata_to_hocr_files
 from functools import reduce
 
@@ -233,7 +233,14 @@ def area_summary(area):
             summary['word_areas'].append((wordbbox['x2'] - wordbbox['x1']) * (wordbbox['y2'] - wordbbox['y1']))
 
             for x in range(wordbbox['x1'] - summary['x1'], wordbbox['x2'] - summary['x1']):
-                summary['x_gaps'][x] = 1
+                print(x)
+                print(len(summary['x_gaps']))
+                print((wordbbox['x1'] - summary['x1'], wordbbox['x2'] - summary['x1']))
+                try:
+                    summary['x_gaps'][x] = 1
+                except IndexError:
+                    # x lies outside of gaps. Skip.
+                    pass
 
             # If word isn't the last word in a line, get distance between word and word + 1
             if word_idx != (len(words) - 1):
@@ -673,7 +680,7 @@ def extract_tables(document_path):
             soup = BeautifulSoup(text, 'html.parser')
             # TODO use a named tuple for this purpose.
             pages.append({
-                'page_no': page.split('/')[-1].replace(f'.{ext}', '').replace('page_', ''),
+                'page_no': page.split('/')[-1].replace(f'.{config.hocr_ext}', '').replace('page_', ''),
                 'soup': soup,
                 'page': helpers.extractbbox(soup.find_all('div', 'ocr_page')[0].get('title')),
                 'areas': [ area_summary(area) for area in soup.find_all('div', 'ocr_carea') ],
@@ -774,7 +781,7 @@ def extract_tables(document_path):
 
     # Store table scores and type of the areas in the hocr files
     store_table_metadata_in_soup(pages)
-    write_table_metadata_to_hocr_files(pages, document_path, subdir=subdir_ts)
+    write_table_metadata_to_hocr_files(pages, document_path, subdir=config.subdir_hocr_ts)
     print("Completed writing hocr files")
 
     # Plot table detection

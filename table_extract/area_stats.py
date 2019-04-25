@@ -3,7 +3,7 @@ import math
 import re
 import numpy as np
 import itertools
-import helpers
+import table_extract.helpers as helpers
 
 # Grab this much extra space around tables
 padding = 10
