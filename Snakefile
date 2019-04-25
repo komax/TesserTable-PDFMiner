@@ -8,8 +8,16 @@ filenames = glob_wildcards("pdfs/{filename}.pdf")
 def all_pdftotext_files(wildcards):
     return list(map(lambda p: f"{OUTDIR}/{p}/pdftotext.txt", wildcards.filename))
 
+
 def all_ocr_text_files(wildcards):
     return list(map(lambda p: f"{OUTDIR}/{p}/ocr_text.txt", wildcards.filename))
+
+
+def all_table_extract_done(wildcards):
+    res = []
+    for filename in wildcards.filename:
+        res.append(f"{OUTDIR}/{filename}/table_extract.done")
+    return res
 
 
 rule all:
@@ -25,6 +33,12 @@ rule ocr_all:
     run:
         for txt in input.ocr_txts:
             print(f"Generated OCR text for file: {txt}")
+
+rule table_extract_all:
+    input:
+        all_table_extract_done(filenames)
+    run:
+        print("Done with extracting tables")
 
 
 rule cp_pdf:
@@ -84,7 +98,8 @@ rule table_extract:
         lambda wildcards: PDFArtefacts(f"pdfs/{wildcards.filename}.pdf", OUTDIR).hocr(),
         pdf="ocr_output/{filename}/orig.pdf"
     output:
-        directory("ocr_output/{filename}/hocr-ts")
+        directory("ocr_output/{filename}/hocr-ts"),
+        touch("ocr_output/{filename}/table_extract.done")
     #output:
         #hocrs=expand("ocr_output/{{filename}}/hocr-ts/page_{page_no}.hocr", page_no=()
     run:
