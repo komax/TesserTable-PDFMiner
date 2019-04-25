@@ -5,10 +5,10 @@ import math
 import re
 import numpy as np
 import itertools
-import helpers
-import glob
+import table_extract.helpers as helpers
 
-from annotate import plot_table_detection, store_table_metadata_in_soup, \
+from table_extract.utils import TableExtractConfig
+from table_extract.annotate import plot_table_detection, store_table_metadata_in_soup, \
     write_table_metadata_to_hocr_files
 from functools import reduce
 
@@ -232,7 +232,11 @@ def area_summary(area):
             summary['word_areas'].append((wordbbox['x2'] - wordbbox['x1']) * (wordbbox['y2'] - wordbbox['y1']))
 
             for x in range(wordbbox['x1'] - summary['x1'], wordbbox['x2'] - summary['x1']):
-                summary['x_gaps'][x] = 1
+                try:
+                    summary['x_gaps'][x] = 1
+                except IndexError:
+                    # x lies outside of gaps. Skip.
+                    pass
 
             # If word isn't the last word in a line, get distance between word and word + 1
             if word_idx != (len(words) - 1):
@@ -649,26 +653,31 @@ def process_page(doc_stats, page):
 
 # Entry into table extraction
 def extract_tables(document_path):
-    page_paths = glob.glob(document_path + '/tesseract/*.html')
+    config = TableExtractConfig(document_path)
+    config.make_subdirs()
 
+    page_paths = config.hocr_files()
     # Check if a native text layer is available and load it
     text_layer = ''
     has_text_layer = False
-    if os.path.exists(document_path + '/pdftotext.txt') and os.path.getsize(document_path + '/pdftotext.txt') > 1:
-        with open(document_path + '/pdftotext.txt') as t:
+    text_layer_path = config.text_layer_path()
+    if os.path.exists(text_layer_path) and os.path.getsize(text_layer_path) > 1:
+        with open(text_layer_path) as t:
             text_layer = t.read()
             has_text_layer = True
     else:
         print('Does not have text layer')
 
     pages = []
+    # TODO use a threadpool to do this in parallel.
     for page_no, page in enumerate(page_paths):
         # Read in each tesseract page with BeautifulSoup so we can look at the document holistically
         with open(page) as hocr:
             text = hocr.read()
             soup = BeautifulSoup(text, 'html.parser')
+            # TODO use a named tuple for this purpose.
             pages.append({
-                'page_no': page.split('/')[-1].replace('.html', '').replace('page_', ''),
+                'page_no': page.split('/')[-1].replace(f'.{config.hocr_ext}', '').replace('page_', ''),
                 'soup': soup,
                 'page': helpers.extractbbox(soup.find_all('div', 'ocr_page')[0].get('title')),
                 'areas': [ area_summary(area) for area in soup.find_all('div', 'ocr_carea') ],
@@ -769,11 +778,13 @@ def extract_tables(document_path):
 
     # Store table scores and type of the areas in the hocr files
     store_table_metadata_in_soup(pages)
-    write_table_metadata_to_hocr_files(pages, document_path)
+    write_table_metadata_to_hocr_files(pages, document_path, subdir=config.subdir_hocr_ts)
     print("Completed writing hocr files")
 
     # Plot table detection
-    plot_table_detection(pages, document_path)
+    # FIXME make this optional.
+    if config.is_writing_table_extract_boxes:
+        plot_table_detection(pages, config.document_path, sub_dir=config.subdir_table_extract_boxes)
 
 
 
@@ -807,5 +818,8 @@ def extract_tables(document_path):
         #         print '    Gaps: %s' % (area['gaps'])
         #         print '    Line height average: %s' %(np.nanmean(area['line_heights']))
         #     plot(page['soup'], page_extracts)
-        for table in page_extracts:
-            helpers.extract_table(document_path, page['page_no'], table)
+
+        if config.is_extracting_tables:
+            for table in page_extracts:
+                # FIXME Make this optional.
+                helpers.extract_table(document_path, page['page_no'], table)

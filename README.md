@@ -1,51 +1,26 @@
-# tesseract-tables
-A tool for extracting tables, figures, maps, and pictures from PDFs using Tesseract
+# Optical Character Recognition (OCR) and table extraction
+A tool which makes use of OCR to transform PDFs to [hocr files](http://kba.cloud/hocr-spec)
+and classifies [areas in the hocr files](http://kba.cloud/hocr-spec/1.2/#sec-ocr_carea) as tables and other textual representations by using [table-extract](https://github.com/UW-Deepdive-Infrastructure/table-extract).
 
-## Installation
-If you are using MacOS you can install the dependencies as so:
 
-````
-brew install ghostscript parallel tesseract
-````
+## Requirements
+- conda (Anaconda or Miniconda)
 
-Next, install the Python dependencies:
+## Install
+### 1. Anaconda environment
+1. Create a new environment, e.g., ```ocr-pdf``` and install all dependencies.
+```bash
+$ conda env create --name ocr-pdf --file environment.yaml
+```
 
-````
-pip install -r requirements.txt
-````
+2. Activate the conda environment. Either use the anaconda navigator or use this command in your terminal:
+```bash
+$ conda activate ocr-pdf
+```
+or
+```bash
+$ source activate ocr-pdf
+```
 
-## Example usage
-Assuming you have a document named `my_doc.pdf`, you can prepare it for processing and extract tables as so:
-
-````bash
-./preprocess.sh ./my_doc_processed ./my_doc.pdf
-python do_extract.py ./my_doc_processed
-````
-
-This will extract tables and figures to `./my_doc_processed/tables`. The first command will parse the PDF into the necessary directory structure and create the necessary data products for Tesseract. The second will extract tables.
-
-## preprocess.sh
-Script for prepping a PDF for table extraction. Converts each page of the PDF to a PNG with Ghostscript, then runs the PNGs through Tesseract. Also runs each page through `annotate.py` to assist in debugging. Assumes local installation of [tesseract-ocr](https://github.com/tesseract-ocr/tesseract).
-
-#### Example usage
-
-````
-./preprocess.sh ./my_document_processed my_document.pdf
-````
-
-This creates the file structure necessary for extraction:
-````
-document_name
-  annotated (pngs of what tesseract sees)
-  png (each page of the PDF as a PNG image)
-  tables (extractions)
-  tesseract (HTML for each page produced by tesseract)
-  orig.pdf (The original document)
-  text.txt (The extracted text layer)
-````
-
-## Funding
-Development supported by NSF ICER 1343760
-
-## License
-MIT
+## Execute jobs with Snakemake
+The configuration is stored in ```Snakefile```. Adjust ```-j <num_cores>``` in your snakemake calls to make use of multiple cores to run at the same time.

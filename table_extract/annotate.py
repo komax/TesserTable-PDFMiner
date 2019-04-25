@@ -125,12 +125,12 @@ def get_color_code(area_type):
     }[area_type]
 
 
-def plot_table_detection(pages, path):
+def plot_table_detection(pages, path, sub_dir='table-detection'):
     for page in pages:
-        plot_table_detection_per_page(page, path)
+        plot_table_detection_per_page(page, path, out_dir=sub_dir)
 
 
-def plot_table_detection_per_page(page, path, overlay=True, out_dir='table-detection'):
+def plot_table_detection_per_page(page, path, out_dir, overlay=True):
     fig = plt.figure()
     ax = fig.add_subplot(111, aspect='equal')
 
@@ -179,11 +179,11 @@ def store_table_metadata_in_soup(pages):
             soup['ts:type'] = area_type
 
 
-def write_table_metadata_to_hocr_files(pages, document_path):
+def write_table_metadata_to_hocr_files(pages, document_path, subdir="hocr", ext="hocr"):
     for page in pages:
         page_no = page['page_no']
         print("Write new soup for page={}".format(page_no))
-        with open(document_path + '/tesseract/page_' + page_no + '.html', 'w') as hocr_file:
+        with open(f"{document_path}/{subdir}/page_{page_no}.{ext}", 'w') as hocr_file:
             soup = page['soup']
             hocr_file.write(str(soup))
 

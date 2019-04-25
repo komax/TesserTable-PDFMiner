@@ -5,3 +5,9 @@ venv
 *.pyc
 *.png
 *.pdf
+
+# Ignore VS code config.
+.vscode
+
+# Ignore snakemake data
+.snakemake
