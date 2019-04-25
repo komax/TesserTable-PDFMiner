@@ -6,7 +6,6 @@ import re
 import numpy as np
 import itertools
 import table_extract.helpers as helpers
-import glob
 
 from table_extract.utils import TableExtractConfig
 from table_extract.annotate import plot_table_detection, store_table_metadata_in_soup, \
@@ -233,9 +232,6 @@ def area_summary(area):
             summary['word_areas'].append((wordbbox['x2'] - wordbbox['x1']) * (wordbbox['y2'] - wordbbox['y1']))
 
             for x in range(wordbbox['x1'] - summary['x1'], wordbbox['x2'] - summary['x1']):
-                print(x)
-                print(len(summary['x_gaps']))
-                print((wordbbox['x1'] - summary['x1'], wordbbox['x2'] - summary['x1']))
                 try:
                     summary['x_gaps'][x] = 1
                 except IndexError:
