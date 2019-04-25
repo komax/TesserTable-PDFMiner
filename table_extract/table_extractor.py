@@ -654,6 +654,7 @@ def process_page(doc_stats, page):
 # Entry into table extraction
 def extract_tables(document_path):
     config = TableExtractConfig(document_path)
+    config.make_subdirs()
 
     page_paths = config.hocr_files()
     # Check if a native text layer is available and load it

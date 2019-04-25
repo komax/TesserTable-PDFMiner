@@ -14,7 +14,7 @@ class TableExtractConfig(object):
         self.subdir_extracted_tables = "tables"
         self.extracted_tables_ext = "png"
 
-        self.is_writing_table_extract_boxes = True
+        self.is_writing_table_extract_boxes = False
         self.subdir_table_extract_boxes = "table-detection"
 
     def make_subdirs(self):

@@ -1,4 +1,5 @@
 from scripts.utils import PDFArtefacts
+from table_extract import extract_tables
 
 OUTDIR = "ocr_output"
 
@@ -23,7 +24,7 @@ rule ocr_all:
         ocr_txts=all_ocr_text_files(filenames)
     run:
         for txt in input.ocr_txts:
-            print(f"Genered OCR text for file: {txt}")
+            print(f"Generated OCR text for file: {txt}")
 
 
 rule cp_pdf:
@@ -79,6 +80,19 @@ rule merge_ocr_txt:
 
 
 rule table_extract:
+    input:
+        lambda wildcards: PDFArtefacts(f"pdfs/{wildcards.filename}.pdf", OUTDIR).hocr(),
+        pdf="ocr_output/{filename}/orig.pdf"
+    output:
+        directory("ocr_output/{filename}/hocr-ts")
+    #output:
+        #hocrs=expand("ocr_output/{{filename}}/hocr-ts/page_{page_no}.hocr", page_no=()
     run:
-        "table-extract.py"
+        print("///////")
+        print(input.pdf)
+        print("////////")
+        print("----------")
+        print(output)
+        print("----------")
+        extract_tables(f"{OUTDIR}/{wildcards.filename}")
         #FIXME Implement this.
