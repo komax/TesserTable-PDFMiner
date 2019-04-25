@@ -30,22 +30,24 @@ class PDFArtefacts(object):
     def filename(self):
         return self.pdf_path.stem
 
-    def _file_list(self, subdir, ext, wildcard="filename"):
+    def _file_list(self, subdir, ext, wildcard_pattern="{filename}"):
         result = []
-        wildcard_pattern = "{" + f"{wildcard}" + "}"
         for page_no in self.pages_range():
             png_path = self.out_dir / wildcard_pattern / f"{subdir}/page_{page_no}.{ext}"
             result.append(str(png_path))
         return result
 
-    def pngs(self, wildcard="filename"):
-        return self._file_list(subdir="png", ext="png", wildcard=wildcard)
+    def pngs(self, wildcard="{filename}"):
+        return self._file_list(subdir="png", ext="png", wildcard_pattern=wildcard)
 
-    def hocr(self, wildcard="filename"):
-        return self._file_list(subdir="hocr", ext="hocr", wildcard=wildcard)
+    def hocr(self, wildcard="{filename}"):
+        return self._file_list(subdir="hocr", ext="hocr", wildcard_pattern=wildcard)
+
+    def hocr_table_extract(self):
+        return self._file_list(subdir="hocr-ts", ext="hocr", wildcard_pattern=self.filename())
     
-    def ocr_text(self, wildcard="filename"):
-        return self._file_list(subdir="ocr-txt", ext="txt", wildcard=wildcard)
+    def ocr_text(self, wildcard="{filename}"):
+        return self._file_list(subdir="ocr-txt", ext="txt", wildcard_pattern=wildcard)
 
 def main():
     pdf_artefacts = PDFArtefacts('pdfs/Acosta-Cortes_Martinez-Ledezma_et_al._2019_-_Polyphosphate_recovery_by_a_native.pdf', 'ocr_output')
