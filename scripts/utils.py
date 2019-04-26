@@ -13,7 +13,7 @@ def all_files(dir='pdfs', ext='pdf'):
 
 
 def number_pages_pdf(pdf_file):
-    result_bytes = shell("pdfinfo {pdf_file} | grep '^Pages:' | sed 's/[^0-9]*//'", read=True)
+    result_bytes = shell("pdfinfo {pdf_file} | grep '^Pages:' -a | sed 's/[^0-9]*//'", read=True)
     result_str = result_bytes.decode("utf-8")
     return int(result_str)
 
@@ -50,7 +50,7 @@ class PDFArtefacts(object):
         return self._file_list(subdir="ocr-txt", ext="txt", wildcard_pattern=wildcard)
 
 def main():
-    pdf_artefacts = PDFArtefacts('pdfs/Acosta-Cortes_Martinez-Ledezma_et_al._2019_-_Polyphosphate_recovery_by_a_native.pdf', 'ocr_output')
+    pdf_artefacts = PDFArtefacts('Laurance_-_1994_-_Rainforest_fragmentation_and_the_structure_of_small_mammal_communities_in_tropical_Queensland', 'ocr_output')
     print(pdf_artefacts.pages_pdf)
     print(pdf_artefacts.pngs())
     print(pdf_artefacts.hocr())
