@@ -6,6 +6,8 @@ from table_extract import extract_tables
 INPUTDIR = "pdfs"
 OUTDIR = "output"
 TMPDIR = os.environ.get("TMPDIR", OUTDIR)
+if TMPDIR.endswith('/'):
+    TMPDIR = TMPDIR[0:-1]
 
 filenames = glob_wildcards(INPUTDIR+"/{filename}.pdf")
 
@@ -67,15 +69,15 @@ rule pdf_to_png_page:
     input:
         pdf=OUTDIR+"/{filename}/orig.pdf"
     output:
-        png=OUTDIR+"/{filename}/png/page_{page_no}.png"
+        png=TMPDIR+"/{filename}/png/page_{page_no}.png"
     wildcard_constraints:
         page_no="\d+"
     run:
-        shell("scripts/pdf2png_page.sh {wildcards.page_no} {OUTDIR}/{wildcards.filename}/png {input.pdf}")
+        shell("scripts/pdf2png_page.sh {wildcards.page_no} {TMPDIR}/{wildcards.filename}/png {input.pdf}")
 
 rule ocr_page:
     input:
-        png=OUTDIR+"/{filename}/png/page_{page_no}.png"
+        png=TMPDIR+"/{filename}/png/page_{page_no}.png"
     output:
         hocr=OUTDIR+"/{filename}/hocr/page_{page_no}.hocr",
         txt=OUTDIR+"/{filename}/ocr-txt/page_{page_no}.txt"
@@ -87,6 +89,19 @@ rule ocr_page:
 
 # TODO OCR all pages in parallel.
 
+rule tar_pngs:
+    input:
+        lambda wildcards: PDFArtefacts(f"{INPUTDIR}/{wildcards.filename}.pdf", TMPDIR).pngs(),
+        pdf=OUTDIR+"/{filename}/orig.pdf"
+    output:
+        tar_file=OUTDIR+"/{filename}/pngs.tar.gz"
+    run:
+        pngs=input[0:-1]
+        shell("""
+        tar -czvf {output.tar_file} -C {TMPDIR}/{wildcards.filename} png && rm {pngs}
+        """)
+
+
 rule merge_ocr_txt:
     input:
         lambda wildcards: PDFArtefacts(f"{INPUTDIR}/{wildcards.filename}.pdf", OUTDIR).ocr_text(),
@@ -94,7 +109,7 @@ rule merge_ocr_txt:
     output:
         ocr_txt=OUTDIR+"/{filename}/ocr_text.txt"
     run:
-        txts =input[0:-1]
+        txts=input[0:-1]
         shell("cat {txts} > {output.ocr_txt}")
 
 
