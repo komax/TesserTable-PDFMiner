@@ -4,19 +4,24 @@ from scripts.utils import PDFArtefacts
 from table_extract import extract_tables
 
 INPUTDIR = "pdfs"
-OUTDIR = "output"
+OUTDIR = "test_size_with_tar"
 TMPDIR = os.environ.get("TMPDIR", OUTDIR)
 if TMPDIR.endswith('/'):
     TMPDIR = TMPDIR[0:-1]
 
 filenames = glob_wildcards(INPUTDIR+"/{filename}.pdf")
 
+# TODO rewrite these functions.
 def all_pdftotext_files(wildcards):
     return list(map(lambda p: f"{OUTDIR}/{p}/pdftotext.txt", wildcards.filename))
 
 
 def all_ocr_text_files(wildcards):
     return list(map(lambda p: f"{OUTDIR}/{p}/ocr_text.txt", wildcards.filename))
+
+
+def all_tars(wildcards):
+    return list(map(lambda p: f"{OUTDIR}/{p}/pngs.tar.gz", wildcards.filename))
 
 
 def all_table_extract_done(wildcards):
@@ -28,6 +33,8 @@ def all_table_extract_done(wildcards):
 
 rule all:
     input:
+        ocr_txts=all_ocr_text_files(filenames),
+        tars=all_tars(filenames),
         pdftotxts=all_pdftotext_files(filenames)
     run:
         for txt in input.pdftotxts:
@@ -35,7 +42,8 @@ rule all:
 
 rule ocr_all:
     input:
-        ocr_txts=all_ocr_text_files(filenames)
+        ocr_txts=all_ocr_text_files(filenames),
+        tars=all_tars(filenames)
     run:
         for txt in input.ocr_txts:
             print(f"Generated OCR text for file: {txt}")
