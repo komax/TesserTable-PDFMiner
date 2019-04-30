@@ -64,7 +64,8 @@ rule ocr_all:
 rule table_extract_all:
     input:
         all_table_extract_done(filenames),
-        pdftotxts=all_pdftotext_files(filenames)
+        pdftotxts=all_pdftotext_files(filenames),
+        tars=all_tars(filenames)
     run:
         print("Done with extracting tables")
 
@@ -123,7 +124,9 @@ rule tar_pngs:
     run:
         pngs=input[0:-1]
         shell("""
-        tar -czvf {output.tar_file} -C {TMPDIR}/{wildcards.filename} png && rm {pngs}
+        tar -czvf {output.tar_file} -C {TMPDIR}/{wildcards.filename} png &&
+        rm {pngs} &&
+        rmdir {TMPDIR}/{wildcards.filename}/png
         """)
 
 # Enumerate all hocr files based from their information on how many pages this pdf has.
