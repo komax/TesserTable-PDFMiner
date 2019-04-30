@@ -10,7 +10,7 @@ class TableExtractConfig(object):
         
         self.text_layer_filename = "pdftotext.txt"
 
-        self.is_extracting_tables = True
+        self.is_extracting_tables = False
         self.subdir_extracted_tables = "tables"
         self.extracted_tables_ext = "png"
 
