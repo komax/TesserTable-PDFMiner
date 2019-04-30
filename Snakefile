@@ -3,8 +3,9 @@ import os
 from scripts.utils import PDFArtefacts
 from table_extract import extract_tables
 
+# Paths for input data, temp data and output
 INPUTDIR = "pdfs"
-OUTDIR = "test_size_with_tar"
+OUTDIR = "output"
 TMPDIR = os.environ.get("TMPDIR", OUTDIR)
 if TMPDIR.endswith('/'):
     TMPDIR = TMPDIR[0:-1]
@@ -31,6 +32,7 @@ def all_table_extract_done(wildcards):
     return res
 
 
+# Force to run OCR, tar and pdftotext.
 rule all:
     input:
         ocr_txts=all_ocr_text_files(filenames),
@@ -38,8 +40,18 @@ rule all:
         pdftotxts=all_pdftotext_files(filenames)
     run:
         for txt in input.pdftotxts:
-            print(f"Used pdftotext for file: {txt}")
+            print(f"Ran OCR, tar and pdftotext for file: {txt}")
 
+# Run pdftotext on all pdfs.
+rule pdftotext_all:
+    input:
+        pdftotxts=all_pdftotext_files(filenames)
+    run:
+        for txt in input.pdftotxts:
+            print(f"Executed pdftotext for file: {txt}")
+
+
+# OCR all pdfs.
 rule ocr_all:
     input:
         ocr_txts=all_ocr_text_files(filenames),
@@ -48,6 +60,7 @@ rule ocr_all:
         for txt in input.ocr_txts:
             print(f"Generated OCR text for file: {txt}")
 
+# Run table-extract on all ocred files.
 rule table_extract_all:
     input:
         all_table_extract_done(filenames),
@@ -55,7 +68,7 @@ rule table_extract_all:
     run:
         print("Done with extracting tables")
 
-
+# Copy pdf to the corresponding directory.
 rule cp_pdf:
     input:
         pdf=INPUTDIR+"/{pdf_file}.pdf"
@@ -64,6 +77,7 @@ rule cp_pdf:
     shell:
         "cp {input.pdf} {output.pdf}"
 
+# Apply pdftotext to the pdf.
 rule pdf_to_text:
     input:
         pdf=OUTDIR+"/{pdf_file}/orig.pdf"
@@ -72,7 +86,7 @@ rule pdf_to_text:
     run:
         shell("pdftotext {input.pdf} - -enc UTF-8 > {output.txt}")
 
-
+# Transform a page from a pdf to a png. This rule uses TMPDIR as output because pngs are large.
 rule pdf_to_png_page:
     input:
         pdf=OUTDIR+"/{filename}/orig.pdf"
@@ -83,6 +97,8 @@ rule pdf_to_png_page:
     run:
         shell("scripts/pdf2png_page.sh {wildcards.page_no} {TMPDIR}/{wildcards.filename}/png {input.pdf}")
 
+
+# OCR a page as a png. We output a hocr and txt file per page.
 rule ocr_page:
     input:
         png=TMPDIR+"/{filename}/png/page_{page_no}.png"
@@ -97,10 +113,11 @@ rule ocr_page:
 
 # TODO OCR all pages in parallel.
 
+# Tar pngs and remove the pngs from tmpdir after the merging of the ocr_text.
 rule tar_pngs:
     input:
         lambda wildcards: PDFArtefacts(f"{INPUTDIR}/{wildcards.filename}.pdf", TMPDIR).pngs(),
-        pdf=OUTDIR+"/{filename}/orig.pdf"
+        ocr_txt=OUTDIR+"/{filename}/ocr_text.txt"
     output:
         tar_file=OUTDIR+"/{filename}/pngs.tar.gz"
     run:
@@ -109,7 +126,8 @@ rule tar_pngs:
         tar -czvf {output.tar_file} -C {TMPDIR}/{wildcards.filename} png && rm {pngs}
         """)
 
-
+# Enumerate all hocr files based from their information on how many pages this pdf has.
+# Concatenate all pages as a ocr_text.txt
 rule merge_ocr_txt:
     input:
         lambda wildcards: PDFArtefacts(f"{INPUTDIR}/{wildcards.filename}.pdf", OUTDIR).ocr_text(),
@@ -120,7 +138,7 @@ rule merge_ocr_txt:
         txts=input[0:-1]
         shell("cat {txts} > {output.ocr_txt}")
 
-
+# Run table-extract to output scores for each box in the hocr file.
 rule table_extract:
     input:
         lambda wildcards: PDFArtefacts(f"{INPUTDIR}/{wildcards.filename}.pdf", OUTDIR).hocr(),
@@ -130,11 +148,6 @@ rule table_extract:
         directory(OUTDIR+"/{filename}/hocr-ts"),
         touch(OUTDIR+"/{filename}/table_extract.done")
     run:
-        print("///////")
-        print(input.pdf)
-        print("////////")
-        print("----------")
-        print(output)
-        print("----------")
+        print("Start to run table-extract...")
         extract_tables(f"{OUTDIR}/{wildcards.filename}")
-        #FIXME Implement this.
+        print("table-extract completed.")
