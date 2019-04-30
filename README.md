@@ -48,8 +48,42 @@ After running all rules, ```output/foo_bar_1999``` contains the following folder
 The configuration is stored in ```Snakefile```. Adjust ```-j <num_cores>``` in your snakemake calls to make use of multiple cores to run at the same time.
 
 ### 1. Single file processing
-TODO
+Example file ```pdfs/foo_bar_1999.pdf``` and ```OUTDIR='output'```. 
+ * To run ```pdftotext``` on this pdf,  we execute this on the terminal:
+```bash
+$ snakemake output/foo_bar_1999/pdftotext.txt
+```
+ * It is also possible to OCR the whole paper by running:
+```bash
+$ snakemake output/foo_bar_1999/ocr_text.txt
+```
+ * To create an archive from the input pngs, execute:
+```bash
+$ snakemake output/foo_bar_1999/pngs.tar.gz
+```
+ * Last but not least to run ```table-extract```, run snakemake with the following arguments:
+```bash
+$ snakemake output/foo_bar_1999/table_extract.done
+```
+
 ### 2. Batch processing of pdfs
-TODO
-### 3. Run ```table_extract```
-TODO
+Snakemake permits to define batch processes by applying other Snakemake rules onto many files, e.g. all pdfs in ```INPUTDIR```. This workflow allows to generate outputs from all pdfs in ```INPUTDIR```.
+
+ * To only run ```pdftotext``` on all pdfs, call:
+```bash
+$ snakemake pdftotext_all
+```
+ * In order to generate all hocr files from the pdfs, run snakemake as follows:
+```bash
+$ snakemake all
+```
+or simply
+```bash
+$ snakemake
+```
+ * To extract and classify hocr files with ```table_extract``` on the whole corpus of pdfs, run this:
+```bash
+$ snakemake table_extract_all
+```
+  
+All ```*_all``` rules implicitly archive the pdf's pngs as ```pngs.tar.gz``` in the corresponding folder.
