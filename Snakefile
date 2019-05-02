@@ -133,19 +133,16 @@ rule tar_pngs:
 # Concatenate all pages as a ocr_text.txt
 rule merge_ocr_txt:
     input:
-        lambda wildcards: PDFArtefacts(f"{INPUTDIR}/{wildcards.filename}.pdf", OUTDIR).ocr_text(),
-        pdf=OUTDIR+"/{filename}/orig.pdf"
+        lambda wildcards: PDFArtefacts(f"{INPUTDIR}/{wildcards.filename}.pdf", OUTDIR).ocr_text()
     output:
         ocr_txt=OUTDIR+"/{filename}/ocr_text.txt"
     run:
-        txts=input[0:-1]
-        shell("cat {txts} > {output.ocr_txt}")
+        shell("cat {input} > {output.ocr_txt}")
 
 # Run table-extract to output scores for each box in the hocr file.
 rule table_extract:
     input:
         lambda wildcards: PDFArtefacts(f"{INPUTDIR}/{wildcards.filename}.pdf", OUTDIR).hocr(),
-        pdf=OUTDIR+"/{filename}/orig.pdf",
         pdftotext=OUTDIR+"/{filename}/pdftotext.txt"
     output:
         directory(OUTDIR+"/{filename}/hocr-ts"),
