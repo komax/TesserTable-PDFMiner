@@ -3,15 +3,6 @@ from pathlib import Path
 from snakemake import shell
 
 
-def all_pdfs(dir='pdfs'):
-    return all_files(dir, ext='pdf')
-
-
-def all_files(dir='pdfs', ext='pdf'):
-    pdf_paths = sorted(Path(dir).glob('*.{}'.format(ext)))
-    return list(map(str, pdf_paths))
-
-
 def number_pages_pdf(pdf_file):
     result_bytes = shell("pdfinfo {pdf_file} | grep '^Pages:' -a | sed 's/[^0-9]*//'", read=True)
     result_str = result_bytes.decode("utf-8")
