@@ -128,7 +128,7 @@ rule tar_pngs:
     run:
         pngs=input[0:-1]
         shell("""
-        tar -czvf {output.tar_file} -C {TMPDIR}/{wildcards.filename} png &&
+        tar -czf {output.tar_file} -C {TMPDIR}/{wildcards.filename} png &&
         rm {pngs} &&
         rmdir {TMPDIR}/{wildcards.filename}/png
         """)
@@ -155,3 +155,17 @@ rule table_extract:
         print("Start to run table-extract...")
         extract_tables(f"{OUTDIR}/{wildcards.filename}")
         print("table-extract completed.")
+
+# Wipe all (intermediate) output files.
+rule clean:
+    run:
+        for tmp_dir in all_files("",outputdir=TMPDIR):
+            shell("rm -rf {tmp_dir}")
+        shell("rm -rf {OUTDIR}")
+
+# Remove the pngs.tar.gz archives from OUTDIR. 
+rule prune_archives:
+    input:
+        all_tars()
+    run:
+        shell("rm {input}")
