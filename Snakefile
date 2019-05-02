@@ -1,7 +1,7 @@
 import os
 
 from scripts.utils import PDFArtefacts
-from table_extract import extract_tables
+from table_extract import extract_tables, TableExtractConfig
 
 # Paths for input data, temp data and output
 INPUTDIR = "pdfs"
@@ -152,8 +152,11 @@ rule table_extract:
         directory(OUTDIR+"/{filename}/hocr-ts"),
         touch(OUTDIR+"/{filename}/table_extract.done")
     run:
+        config = TableExtractConfig(document_path=f"{OUTDIR}/{wildcards.filename}")
+        config.is_extracting_tables = False
+        config.is_writing_table_extract_boxes = False
         print("Start to run table-extract...")
-        extract_tables(f"{OUTDIR}/{wildcards.filename}")
+        extract_tables(config)
         print("table-extract completed.")
 
 # Wipe all (intermediate) output files.

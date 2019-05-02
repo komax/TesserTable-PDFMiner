@@ -652,8 +652,13 @@ def process_page(doc_stats, page):
 
 
 # Entry into table extraction
-def extract_tables(document_path):
-    config = TableExtractConfig(document_path)
+def extract_tables(document_path=None):
+    if isinstance(document_path, str):
+        config = TableExtractConfig(document_path)
+    elif isinstance(document_path, TableExtractConfig):
+        config = document_path
+    else:
+        raise ValueError(f"Illegal parameter. {document_path} is not a valid document path")
     config.make_subdirs()
 
     page_paths = config.hocr_files()
@@ -778,7 +783,7 @@ def extract_tables(document_path):
 
     # Store table scores and type of the areas in the hocr files
     store_table_metadata_in_soup(pages)
-    write_table_metadata_to_hocr_files(pages, document_path, subdir=config.subdir_hocr_ts)
+    write_table_metadata_to_hocr_files(pages, config.document_path, subdir=config.subdir_hocr_ts)
     print("Completed writing hocr files")
 
     # Plot table detection
@@ -822,4 +827,4 @@ def extract_tables(document_path):
         if config.is_extracting_tables:
             for table in page_extracts:
                 # FIXME Make this optional.
-                helpers.extract_table(document_path, page['page_no'], table)
+                helpers.extract_table(config.document_path, page['page_no'], table)
