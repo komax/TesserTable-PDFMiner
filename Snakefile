@@ -12,32 +12,36 @@ if TMPDIR.endswith('/'):
 
 filenames = glob_wildcards(INPUTDIR+"/{filename}.pdf")
 
-# TODO rewrite these functions.
-def all_pdftotext_files(wildcards):
-    return list(map(lambda p: f"{OUTDIR}/{p}/pdftotext.txt", wildcards.filename))
 
-
-def all_ocr_text_files(wildcards):
-    return list(map(lambda p: f"{OUTDIR}/{p}/ocr_text.txt", wildcards.filename))
-
-
-def all_tars(wildcards):
-    return list(map(lambda p: f"{OUTDIR}/{p}/pngs.tar.gz", wildcards.filename))
-
-
-def all_table_extract_done(wildcards):
+def all_files(computed_file, wildcards=filenames, outputdir=OUTDIR):
     res = []
     for filename in wildcards.filename:
-        res.append(f"{OUTDIR}/{filename}/table_extract.done")
+        res.append(f"{outputdir}/{filename}/{computed_file}")
     return res
+
+
+def all_pdftotext_files(wildcards=filenames):
+    return all_files(computed_file='pdftotext.txt', wildcards=wildcards)
+
+
+def all_ocr_text_files(wildcards=filenames):
+    return all_files(computed_file='ocr_text.txt', wildcards=wildcards)
+
+
+def all_tars(wildcards=filenames):
+    return all_files(computed_file='pngs.tar.gz', wildcards=wildcards)
+
+
+def all_table_extract_done(wildcards=filenames):
+    return all_files(computed_file='table_extract.done', wildcards=wildcards)
 
 
 # Force to run OCR, tar and pdftotext.
 rule all:
     input:
-        ocr_txts=all_ocr_text_files(filenames),
-        tars=all_tars(filenames),
-        pdftotxts=all_pdftotext_files(filenames)
+        ocr_txts=all_ocr_text_files(),
+        tars=all_tars(),
+        pdftotxts=all_pdftotext_files()
     run:
         for txt in input.pdftotxts:
             print(f"Ran OCR, tar and pdftotext for file: {txt}")
@@ -45,7 +49,7 @@ rule all:
 # Run pdftotext on all pdfs.
 rule pdftotext_all:
     input:
-        pdftotxts=all_pdftotext_files(filenames)
+        pdftotxts=all_pdftotext_files()
     run:
         for txt in input.pdftotxts:
             print(f"Executed pdftotext for file: {txt}")
@@ -54,8 +58,8 @@ rule pdftotext_all:
 # OCR all pdfs.
 rule ocr_all:
     input:
-        ocr_txts=all_ocr_text_files(filenames),
-        tars=all_tars(filenames)
+        ocr_txts=all_ocr_text_files(),
+        tars=all_tars()
     run:
         for txt in input.ocr_txts:
             print(f"Generated OCR text for file: {txt}")
@@ -63,9 +67,9 @@ rule ocr_all:
 # Run table-extract on all ocred files.
 rule table_extract_all:
     input:
-        all_table_extract_done(filenames),
-        pdftotxts=all_pdftotext_files(filenames),
-        tars=all_tars(filenames)
+        all_table_extract_done(),
+        pdftotxts=all_pdftotext_files(),
+        tars=all_tars()
     run:
         print("Done with extracting tables")
 
