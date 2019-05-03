@@ -36,11 +36,15 @@ def all_table_extract_done(wildcards=filenames):
     return all_files(computed_file='table_extract.done', wildcards=wildcards)
 
 
+def all_pngs_removed(wildcards=filenames):
+    return all_files(computed_file='pngs.removed', wildcards=wildcards)
+
+
 # Force to run OCR, tar and pdftotext.
 rule all:
     input:
         ocr_txts=all_ocr_text_files(),
-        tars=all_tars(),
+        pngs_removed=all_pngs_removed(),
         pdftotxts=all_pdftotext_files()
     run:
         for txt in input.pdftotxts:
@@ -59,7 +63,7 @@ rule pdftotext_all:
 rule ocr_all:
     input:
         ocr_txts=all_ocr_text_files(),
-        tars=all_tars()
+        pngs_removed=all_pngs_removed()
     run:
         for txt in input.ocr_txts:
             print(f"Generated OCR text for file: {txt}")
@@ -69,7 +73,7 @@ rule table_extract_all:
     input:
         all_table_extract_done(),
         pdftotxts=all_pdftotext_files(),
-        tars=all_tars()
+        pngs_removed=all_pngs_removed()
     run:
         print("Done with extracting tables")
 
@@ -128,10 +132,22 @@ rule tar_pngs:
     run:
         pngs=input[0:-1]
         shell("""
-        tar -czf {output.tar_file} -C {TMPDIR}/{wildcards.filename} png &&
+        tar -czf {output.tar_file} -C {TMPDIR}/{wildcards.filename} png
+        """)
+
+rule remove_pngs:
+    input:
+        lambda wildcards: PDFArtefacts(f"{INPUTDIR}/{wildcards.filename}.pdf", TMPDIR).pngs(),
+        ocr_txt=OUTDIR+"/{filename}/ocr_text.txt"
+    output:
+        touch(OUTDIR+"/{filename}/pngs.removed")
+    run:
+        pngs=input[0:-1]
+        shell("""
         rm {pngs} &&
         rmdir {TMPDIR}/{wildcards.filename}/png
         """)
+
 
 # Enumerate all hocr files based from their information on how many pages this pdf has.
 # Concatenate all pages as a ocr_text.txt
