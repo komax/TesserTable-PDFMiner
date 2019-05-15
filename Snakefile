@@ -4,9 +4,10 @@ from scripts.utils import PDFArtefacts
 from table_extract import extract_tables, TableExtractConfig
 
 # Paths for input data, temp data and output
-INPUTDIR = "pdfs"
-OUTDIR = "output"
+INPUTDIR = os.environ.get("INPUTDIR", "pdfs")
+OUTDIR = os.environ.get("OUTDIR", "output")
 TMPDIR = os.environ.get("TMPDIR", OUTDIR)
+#TMPDIR = "output"
 if TMPDIR.endswith('/'):
     TMPDIR = TMPDIR[0:-1]
 
